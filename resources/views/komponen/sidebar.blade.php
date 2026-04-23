@@ -46,7 +46,15 @@
             </a>
         </li>
 
-        <li class="nav-item mt-4">
+        <li class="nav-item">
+            <a href="{{ url('/admin/umkm') }}"
+               class="nav-link {{ $segment == 'umkm' ? 'active-menu' : '' }}">
+                <i class="bi bi-people-fill"></i>
+                <span>UMKM</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a href="{{ url('/admin/laporan') }}"
                class="nav-link {{ $segment == 'laporan' ? 'active-menu' : '' }}">
                 <i class="bi bi-bar-chart-fill"></i>
@@ -54,13 +62,13 @@
             </a>
         </li>
 
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a href="{{ url('/admin/pengaturan') }}"
                class="nav-link {{ $segment == 'pengaturan' ? 'active-menu' : '' }}">
                 <i class="bi bi-gear-fill"></i>
                 <span>Pengaturan</span>
             </a>
-        </li>
+        </li> --}}
 
     </ul>
 </div>
