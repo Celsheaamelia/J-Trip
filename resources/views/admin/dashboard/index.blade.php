@@ -489,9 +489,9 @@
     <div class="row g-3">
         <div class="col-lg-4">
             <div class="destination-card">
-               <img src="{{ asset('assets/images/papuma.jpg') }}"
-                    alt="Pantai"
-                    class="destination-image">
+               <img src="{{ asset('/assets/images/papuma.jpg') }}"
+                alt="Pantai Papuma"
+                class="destination-image">
                 <div class="destination-overlay">
                     <div class="destination-name">Pantai Papuma</div>
                     <div class="destination-sub">Destinasi paling populer hari ini</div>
