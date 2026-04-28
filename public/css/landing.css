@@ -393,7 +393,7 @@ body {
 .destinasi-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
+    gap: 24px;
 }
 
 .dest-card {
@@ -402,6 +402,9 @@ body {
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .dest-card:hover {
@@ -439,7 +442,10 @@ body {
 }
 
 .dest-info {
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 16px;
 }
 
 .dest-info h3 {
@@ -454,12 +460,14 @@ body {
     color: var(--text-body);
     line-height: 1.6;
     margin-bottom: 16px;
+    min-height: 48px;
 }
 
 .dest-footer {
+    margin-top: auto;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
 }
 
 .dest-price {
