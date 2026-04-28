@@ -42,10 +42,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // HERO SLIDER + PARALLAX
 // ===============================
 const heroImages = [
-    "/images/hero-jember.jpg",
-    "/images/pantai-papuma.jpg",
-    "/images/kebun-teh-gambir.jpg",
-    "/images/air-terjun-tancak.jpg"
+    'assets/images/pantai-papuma.jpg',   
+    'assets/images/kebun-teh-gambir.jpg',
+    'assets/images/air-terjun-tancak.jpg',
 ];
 
 let currentHero = 0;
@@ -147,3 +146,4 @@ window.addEventListener('load', () => {
 document.getElementById('detailDate').addEventListener('click', function () {
     this.showPicker && this.showPicker();
 });
+
