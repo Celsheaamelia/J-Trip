@@ -10,7 +10,7 @@ Route::get('/wisata', function () {
     return view('user.wisata');
 })->name('wisata');
 
-Route::get('/admin/user', function () {
+Route:: get('/admin/user', function () {
     return view('admin.user.index');
 });
 
