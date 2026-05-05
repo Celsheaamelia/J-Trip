@@ -241,13 +241,18 @@
         <h1 class="form-title">Buat Akun Baru</h1>
         <p class="form-subtitle">Lengkapi data diri Anda untuk mulai mengeksplorasi.</p>
 
-        <form action="{{ url('/register') }}" method="POST">
-            @csrf
+        @if ($errors->any())
+    <div style="background:#fee2e2;color:#991b1b;padding:12px 14px;border-radius:10px;margin-bottom:16px;font-size:13px;">
+        {{ $errors->first() }}
+    </div>
+@endif
+            <form action="{{ url('/register') }}" method="POST">
+    @csrf
 
             <label>Nama Lengkap</label>
             <div class="input-box">
                 <img src="{{ asset('assets/icons/orang.png') }}" class="input-icon">
-                <input type="text" name="name" placeholder="Nama lengkap">
+                <input type="text" name="name" placeholder="Nama lengkap" value="{{ old('name') }}">
             </div>
 
            <label>Email</label>
@@ -374,8 +379,5 @@ function toggleConfirmPassword() {
     }
 }
 </script>
-}
-</script>
-
 </body>
 </html>

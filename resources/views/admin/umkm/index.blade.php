@@ -1,4 +1,7 @@
 @extends('layout.app')
+@php
+    use Illuminate\Support\Str;
+@endphp
 
 @section('styles')
 <style>
@@ -329,7 +332,9 @@
         </div>
 
         <div class="mt-3 mt-md-0">
-            <button class="btn top-btn">+ Tambah UMKM</button>
+            <a href="{{ route('admin.umkm.create') }}" class="btn top-btn">
+    + Tambah UMKM
+</a>
         </div>
     </div>
 
@@ -338,7 +343,7 @@
             <div class="stat-card h-100">
                 <div class="stat-icon icon-green">🏪</div>
                 <div class="stat-title">Total UMKM</div>
-                <div class="stat-value">1,284</div>
+                <div class="stat-value">{{ number_format($total) }}</div>
                 <div class="stat-sub green">↗ +12% bulan ini</div>
             </div>
         </div>
@@ -347,7 +352,7 @@
             <div class="stat-card h-100">
                 <div class="stat-icon icon-blue">🛡</div>
                 <div class="stat-title">UMKM Terverifikasi</div>
-                <div class="stat-value">1,120</div>
+                <div class="stat-value">{{ number_format($total) }}</div>
                 <div class="stat-sub">87% dari total data</div>
             </div>
         </div>
@@ -356,7 +361,7 @@
             <div class="stat-card h-100">
                 <div class="stat-icon icon-orange">•••</div>
                 <div class="stat-title">Menunggu Review</div>
-                <div class="stat-value">64</div>
+                <div class="stat-value">0</div>
                 <div class="stat-sub orange">Membutuhkan tindakan</div>
             </div>
         </div>
@@ -365,8 +370,8 @@
             <div class="stat-card h-100">
                 <div class="stat-icon icon-darkgreen">🏷</div>
                 <div class="stat-title">Kategori Terbanyak</div>
-                <div class="stat-value">Kuliner</div>
-                <div class="stat-sub">420 unit usaha</div>
+                <div class="stat-value">-</div>
+<div class="stat-sub">Belum ada kategori</div>
             </div>
         </div>
     </div>
@@ -397,135 +402,70 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>
-                            <div class="umkm-info">
-                                <img src="https://via.placeholder.com/46" class="umkm-logo" alt="logo">
-                                <div>
-                                    <div class="umkm-name">Bakso Kabut Bu Jito</div>
-                                    <div class="umkm-sub">Kuliner • Sejak 2018</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="owner-name">Siti Aminah</div>
-                            <div class="owner-phone">+62 812-3456-7890</div>
-                        </td>
-                        <td>
-                            <span class="wisata-badge">📍 Rembangan</span>
-                        </td>
-                        <td>
-                            <span class="status-badge status-active">Aktif</span>
-                        </td>
-                        <td>
-                            <div class="aksi-wrap">
-                                <a href="#" class="aksi-link aksi-edit">✏</a>
-                                <a href="#" class="aksi-link aksi-delete">🗑</a>
-                            </div>
-                        </td>
-                    </tr>
+@forelse ($umkms as $umkm)
+<tr>
+    <td>
+        <div class="umkm-info">
+            <img
+                src="{{ $umkm->gambar ? asset('storage/'.$umkm->gambar) : 'https://via.placeholder.com/46' }}"
+                class="umkm-logo"
+            >
+            <div>
+                <div class="umkm-name">{{ $umkm->nama }}</div>
+                <div class="umkm-sub">
+                    {{ Str::limit($umkm->deskripsi, 40) ?? '-' }}
+                </div>
+            </div>
+        </div>
+    </td>
 
-                    <tr>
-                        <td>
-                            <div class="umkm-info">
-                                <img src="https://via.placeholder.com/46" class="umkm-logo" alt="logo">
-                                <div>
-                                    <div class="umkm-name">Souvenir Laut Papuma</div>
-                                    <div class="umkm-sub">Kerajinan • Sejak 2020</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="owner-name">Budi Santoso</div>
-                            <div class="owner-phone">+62 813-9876-5432</div>
-                        </td>
-                        <td>
-                            <span class="wisata-badge">📍 Pantai Papuma</span>
-                        </td>
-                        <td>
-                            <span class="status-badge status-active">Aktif</span>
-                        </td>
-                        <td>
-                            <div class="aksi-wrap">
-                                <a href="#" class="aksi-link aksi-edit">✏</a>
-                                <a href="#" class="aksi-link aksi-delete">🗑</a>
-                            </div>
-                        </td>
-                    </tr>
+    <td>
+        <div class="owner-name">{{ $umkm->pemilik }}</div>
+        <div class="owner-phone">-</div>
+    </td>
 
-                    <tr>
-                        <td>
-                            <div class="umkm-info">
-                                <img src="https://via.placeholder.com/46" class="umkm-logo" alt="logo">
-                                <div>
-                                    <div class="umkm-name">Kopi Luwak Argopuro</div>
-                                    <div class="umkm-sub">Minuman • Sejak 2015</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="owner-name">H. Ahmad Fauzi</div>
-                            <div class="owner-phone">+62 827-2233-4455</div>
-                        </td>
-                        <td>
-                            <span class="wisata-badge">📍 Puncak Argopuro</span>
-                        </td>
-                        <td>
-                            <span class="status-badge status-review">Review</span>
-                        </td>
-                        <td>
-                            <div class="aksi-wrap">
-                                <a href="#" class="aksi-link aksi-edit">✏</a>
-                                <a href="#" class="aksi-link aksi-delete">🗑</a>
-                            </div>
-                        </td>
-                    </tr>
+    <td>
+        <span class="wisata-badge">
+            📍 {{ $umkm->wisata->nama ?? 'Tidak ada wisata' }}
+        </span>
+    </td>
 
-                    <tr>
-                        <td>
-                            <div class="umkm-info">
-                                <img src="https://via.placeholder.com/46" class="umkm-logo" alt="logo">
-                                <div>
-                                    <div class="umkm-name">Edamame Jember Berkah</div>
-                                    <div class="umkm-sub">Agribisnis • Sejak 2012</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="owner-name">Rina Wijaya</div>
-                            <div class="owner-phone">+62 856-7788-9900</div>
-                        </td>
-                        <td>
-                            <span class="wisata-badge">📍 Agrowisata Jember</span>
-                        </td>
-                        <td>
-                            <span class="status-badge status-active">Aktif</span>
-                        </td>
-                        <td>
-                            <div class="aksi-wrap">
-                                <a href="#" class="aksi-link aksi-edit">✏</a>
-                                <a href="#" class="aksi-link aksi-delete">🗑</a>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
+    <td>
+        <span class="status-badge status-active">Aktif</span>
+    </td>
+
+    <td>
+        <div class="aksi-wrap">
+            <a href="{{ route('admin.umkm.edit', $umkm->id_umkm) }}" class="aksi-link aksi-edit">✏</a>
+
+            <form action="{{ route('admin.umkm.delete', $umkm->id_umkm) }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="aksi-link aksi-delete" style="border:none;background:none;">🗑</button>
+            </form>
+        </div>
+    </td>
+</tr>
+@empty
+<tr>
+    <td colspan="5" class="text-center text-muted py-4">
+        Data UMKM belum ada
+    </td>
+</tr>
+@endforelse
+</tbody>
             </table>
         </div>
 
         <div class="table-footer">
             <div class="footer-text">
-                Menampilkan 1 - 4 dari <strong>1,284</strong> UMKM
+                Menampilkan {{ $umkms->firstItem() }} - {{ $umkms->lastItem() }}
+dari <strong>{{ $umkms->total() }}</strong> UMKM
             </div>
 
-            <div class="pagination-wrap">
-                <span class="page-ui">&lt;</span>
-                <span class="page-ui active">1</span>
-                <span class="page-ui">2</span>
-                <span class="page-ui">3</span>
-                <span class="page-ui">...</span>
-                <span class="page-ui">32</span>
-                <span class="page-ui">&gt;</span>
-            </div>
+            <div>
+    {{ $umkms->links() }}
+</div>
         </div>
     </div>
 

@@ -388,7 +388,7 @@
         <div class="col-md-4">
             <div class="stat-card success-card h-100">
                 <div class="stat-title">Total Tiket Terjual (Bulan Ini)</div>
-                <div class="stat-value">1287</div>
+                <div class="stat-value">{{ number_format($totalTiketBulanIni, 0, ',', '.') }}</div>
                 <div class="stat-chip">↗ +12.5% dari bulan lalu</div>
             </div>
         </div>
@@ -396,7 +396,7 @@
         <div class="col-md-4">
             <div class="stat-card warning-card h-100">
                 <div class="stat-title">Transaksi Berhasil</div>
-                <div class="stat-value">1,429</div>
+                <div class="stat-value">{{ number_format($transaksiBerhasil, 0, ',', '.') }}</div>
                 <div class="stat-desc">
                     <span class="status-badge chip-warning">🎟 Tiket Terbit</span>
                 </div>
@@ -406,7 +406,7 @@
         <div class="col-md-4">
             <div class="stat-card h-100">
                 <div class="stat-title">Menunggu Pembayaran</div>
-                <div class="stat-value">42</div>
+                <div class="stat-value">{{ number_format($menungguPembayaran, 0, ',', '.') }}</div>
                 <div class="stat-desc">
                     <span class="status-badge chip-muted">⚠ Perlu Tindak Lanjut</span>
                 </div>
@@ -438,106 +438,68 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>
-                            <div class="order-code">#JS-20230901-001</div>
-                            <div class="small-muted">14 Okt 2025, 09:41</div>
-                        </td>
-                        <td>
-                            <div class="user-wrap">
-                                <div class="avatar-circle">AS</div>
-                                <div>
-                                    <div class="user-name">Andi Saputra</div>
-                                    <div class="small-muted">andi.s@gmail.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="fw-bold">Rp 450.000</div>
-                            <div class="small-muted">3 Tiket • Papuma</div>
-                        </td>
-                        <td><span class="status-badge status-paid">PAID</span></td>
-                        <td><a href="#" class="aksi-link">👁</a></td>
-                    </tr>
+@forelse ($transaksis as $transaksi)
+<tr>
+    <td>
+        <div class="order-code">#{{ $transaksi->kode_pesanan }}</div>
+        <div class="small-muted">
+            {{ \Carbon\Carbon::parse($transaksi->dibuat_pada)->format('d M Y, H:i') }}
+        </div>
+    </td>
 
-                    <tr>
-                        <td>
-                            <div class="order-code">#JS-20230901-002</div>
-                            <div class="small-muted">14 Okt 2025, 11:10</div>
-                        </td>
-                        <td>
-                            <div class="user-wrap">
-                                <div class="avatar-circle orange">SA</div>
-                                <div>
-                                    <div class="user-name">Siti Aminah</div>
-                                    <div class="small-muted">siti_amin@yahoo.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="fw-bold">Rp 125.000</div>
-                            <div class="small-muted">1 Tiket • Rembangan</div>
-                        </td>
-                        <td><span class="status-badge status-pending">PENDING</span></td>
-                        <td><a href="#" class="aksi-link">👁</a></td>
-                    </tr>
+    <td>
+        <div class="user-wrap">
+            <div class="avatar-circle">
+                {{ strtoupper(substr($transaksi->user->name ?? 'U', 0, 2)) }}
+            </div>
+            <div>
+                <div class="user-name">{{ $transaksi->user->name ?? '-' }}</div>
+                <div class="small-muted">{{ $transaksi->user->email ?? '-' }}</div>
+            </div>
+        </div>
+    </td>
 
-                    <tr>
-                        <td>
-                            <div class="order-code">#JS-20230901-003</div>
-                            <div class="small-muted">14 Okt 2025, 13:03</div>
-                        </td>
-                        <td>
-                            <div class="user-wrap">
-                                <div class="avatar-circle yellow">BK</div>
-                                <div>
-                                    <div class="user-name">Budi Kusuma</div>
-                                    <div class="small-muted">budi_k@outlook.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="fw-bold">Rp 75.000</div>
-                            <div class="small-muted">2 Tiket • Tancak</div>
-                        </td>
-                        <td><span class="status-badge status-failed">FAILED</span></td>
-                        <td><a href="#" class="aksi-link">👁</a></td>
-                    </tr>
+    <td>
+        <div class="fw-bold">
+            Rp {{ number_format($transaksi->grand_total, 0, ',', '.') }}
+        </div>
+        <div class="small-muted">
+            {{ $transaksi->tiket->jumlah_pengunjung ?? 0 }} Tiket •
+            {{ $transaksi->tiket->wisata->name ?? '-' }}
+        </div>
+    </td>
 
-                    <tr>
-                        <td>
-                            <div class="order-code">#JS-20230901-004</div>
-                            <div class="small-muted">14 Okt 2025, 13:56</div>
-                        </td>
-                        <td>
-                            <div class="user-wrap">
-                                <div class="avatar-circle dark">RH</div>
-                                <div>
-                                    <div class="user-name">Rian Hidayat</div>
-                                    <div class="small-muted">rian.hd@gmail.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="fw-bold">Rp 300.000</div>
-                            <div class="small-muted">4 Tiket • Payangan</div>
-                        </td>
-                        <td><span class="status-badge status-paid">PAID</span></td>
-                        <td><a href="#" class="aksi-link">👁</a></td>
-                    </tr>
-                </tbody>
+    <td>
+        <span class="status-badge status-{{ $transaksi->status_pembayaran }}">
+            {{ strtoupper($transaksi->status_pembayaran) }}
+        </span>
+    </td>
+
+    <td><a href="#" class="aksi-link">👁</a></td>
+</tr>
+@empty
+<tr>
+    <td colspan="5" class="text-center text-muted py-4">
+        Belum ada data transaksi
+    </td>
+</tr>
+@endforelse
+</tbody>
             </table>
         </div>
 
         <div class="table-footer">
-            <div class="footer-text">Menampilkan 4 dari 1,429 transaksi</div>
+            @if ($transaksis->count() > 0)
+                Menampilkan {{ $transaksis->firstItem() }} - {{ $transaksis->lastItem() }}
+                dari {{ $transaksis->total() }} transaksi
+            @else
+                Tidak ada data transaksi
+            @endif
 
             <div class="pagination-wrap">
-                <span class="page-item-ui">&lt;</span>
-                <span class="page-item-ui active">1</span>
-                <span class="page-item-ui">2</span>
-                <span class="page-item-ui">3</span>
-                <span class="page-item-ui">&gt;</span>
+                @if ($transaksis->count() > 0)
+                    {{ $transaksis->links() }}
+                @endif
             </div>
         </div>
     </div>
@@ -547,46 +509,22 @@
         <div class="trend-title">Tren Destinasi</div>
 
         <div class="row g-3">
-            <div class="col-md-3">
-                <div class="trend-item">
-                    <div class="trend-rank">1</div>
-                    <div>
-                        <div class="trend-name">Pantai Papuma</div>
-                        <div class="trend-sub">490 Tiket terjual</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="trend-item">
-                    <div class="trend-rank">2</div>
-                    <div>
-                        <div class="trend-name">Rembangan</div>
-                        <div class="trend-sub">327 Tiket terjual</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="trend-item">
-                    <div class="trend-rank">3</div>
-                    <div>
-                        <div class="trend-name">Kebun Teh G. Gambir</div>
-                        <div class="trend-sub">286 Tiket terjual</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="trend-item">
-                    <div class="trend-rank">4</div>
-                    <div>
-                        <div class="trend-name">Pantai Payangan</div>
-                        <div class="trend-sub">199 Tiket terjual</div>
-                    </div>
-                </div>
+@forelse ($trenDestinasi as $index => $tren)
+    <div class="col-md-3">
+        <div class="trend-item">
+            <div class="trend-rank">{{ $index + 1 }}</div>
+            <div>
+                <div class="trend-name">{{ $tren['nama_wisata'] }}</div>
+                <div class="trend-sub">{{ $tren['total_tiket'] }} Tiket terjual</div>
             </div>
         </div>
+    </div>
+@empty
+    <div class="col-12 text-muted">
+        Belum ada data tren destinasi
+    </div>
+@endforelse
+</div>
     </div>
 
 </div>
