@@ -152,7 +152,7 @@
 
 <div class="main-content">
     <nav class="top-navbar">
-        <span class="fw-bold">JTrip Admin Dashboard</span>
+        <span class="fw-bold">JTrip Admin</span>
     </nav>
 
     <div class="content-wrapper">
