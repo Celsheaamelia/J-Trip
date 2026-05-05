@@ -47,4 +47,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(DetailUser::class, 'id_user', 'id_user');
     }
+
+    public function tiket()
+    {
+    return $this->hasMany(Tiket::class, 'id_user', 'id_user');
+    }
+
+    public function transaksi()
+{
+    return $this->hasMany(Transaksi::class, 'id_user', 'id_user');
+}
 }

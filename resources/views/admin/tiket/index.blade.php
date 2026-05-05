@@ -319,7 +319,7 @@
         <div class="col-md-3">
             <div class="ticket-stat-card active-card h-100">
                 <div class="stat-label">TOTAL BOOKING</div>
-                <div class="stat-value">1.287</div>
+                <div class="stat-value">{{ number_format($totalBooking, 0, ',', '.') }}</div>
                 <div class="stat-badge">↗ +12% dari bulan lalu</div>
             </div>
         </div>
@@ -328,7 +328,7 @@
             <div class="ticket-stat-card h-100">
                 <div class="icon-wrap icon-warning mb-3">◔</div>
                 <div class="mini-label">PENDING</div>
-                <div class="stat-number">38</div>
+                <div class="stat-number">{{ $pending }}</div>
                 <div class="mini-desc">Menunggu Pembayaran</div>
             </div>
         </div>
@@ -337,7 +337,7 @@
             <div class="ticket-stat-card h-100">
                 <div class="icon-wrap icon-success mb-3">✓</div>
                 <div class="mini-label">PAID</div>
-                <div class="stat-number">1,287</div>
+                <div class="stat-number">{{ $paid }}</div>
                 <div class="mini-desc">Transaksi Berhasil</div>
             </div>
         </div>
@@ -346,7 +346,7 @@
             <div class="ticket-stat-card h-100">
                 <div class="icon-wrap icon-gray mb-3">↺</div>
                 <div class="mini-label">USED</div>
-                <div class="stat-number">122</div>
+                <div class="stat-number">{{ $used }}</div>
                 <div class="mini-desc">Tiket yang digunakan</div>
             </div>
         </div>
@@ -376,77 +376,66 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse ($tickets as $ticket)
                     <tr>
-                        <td class="ticket-code">#JS-24099001</td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="avatar-circle">RA</div>
-                                <div>
-                                    <div class="user-name">Rizky Amelia</div>
-                                    <small class="text-muted">amelia@example.com</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="text-muted">Pantai Papuma</td>
-                        <td class="text-muted">16 April 2026</td>
-                        <td class="fw-semibold">4 Orang</td>
-                        <td><span class="status-pill status-paid">PAID</span></td>
-                        <td><a href="#" class="eye-link">◉</a></td>
-                    </tr>
+                        <td class="ticket-code">#{{ $ticket->kode_booking }}</td>
 
-                    <tr>
-                        <td class="ticket-code">#JS-24099002</td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <div class="avatar-circle">RA</div>
+                                <div class="avatar-circle">
+                                    {{ strtoupper(substr($ticket->user->name ?? 'U', 0, 2)) }}
+                                </div>
                                 <div>
-                                    <div class="user-name">Rizky Amelia</div>
-                                    <small class="text-muted">amelia@example.com</small>
+                                    <div class="user-name">{{ $ticket->user->name ?? '-' }}</div>
+                                    <small class="text-muted">{{ $ticket->user->email ?? '-' }}</small>
                                 </div>
                             </div>
                         </td>
-                        <td class="text-muted">Pantai Papuma</td>
-                        <td class="text-muted">16 April 2026</td>
-                        <td class="fw-semibold">4 Orang</td>
-                        <td><span class="status-pill status-pending">PENDING</span></td>
-                        <td><a href="#" class="eye-link">◉</a></td>
-                    </tr>
 
-                    <tr>
-                        <td class="ticket-code">#JS-24099003</td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="avatar-circle">RA</div>
-                                <div>
-                                    <div class="user-name">Rizky Amelia</div>
-                                    <small class="text-muted">amelia@example.com</small>
-                                </div>
-                            </div>
+                        <td class="text-muted">
+                            {{ $ticket->wisata->name ?? '-' }}
                         </td>
-                        <td class="text-muted">Pantai Papuma</td>
-                        <td class="text-muted">16 April 2026</td>
-                        <td class="fw-semibold">4 Orang</td>
-                        <td><span class="status-pill status-used">USED</span></td>
-                        <td><a href="#" class="eye-link">◉</a></td>
+
+                        <td class="text-muted">
+                            {{ \Carbon\Carbon::parse($ticket->tanggal_kunjungan)->translatedFormat('d F Y') }}
+                        </td>
+
+                        <td class="fw-semibold">
+                            {{ $ticket->jumlah_pengunjung ?? $ticket->jumlah }} Orang
+                        </td>
+
+                        <td>
+                            <span class="status-pill status-{{ $ticket->status }}">
+                                {{ strtoupper($ticket->status) }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <a href="#" class="eye-link">◉</a>
+                        </td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">
+                            Tidak ada data tiket
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
         <div class="table-footer d-flex justify-content-between align-items-center flex-wrap">
             <div class="footer-info">
-                Menampilkan 1 - 4 dari <strong>1.287</strong> tiket
+                Menampilkan {{ $tickets->firstItem() ?? 0 }} - {{ $tickets->lastItem() ?? 0 }}
+                dari <strong>{{ $tickets->total() }}</strong> tiket
             </div>
 
+           @if ($tickets->count() > 0)
             <div class="pagination-wrap d-flex align-items-center gap-2">
-                <span class="page-arrow">&lt;</span>
-                <span class="page-number active">1</span>
-                <span class="page-number">2</span>
-                <span class="page-number">3</span>
-                <span class="page-dots">...</span>
-                <span class="page-number">1287</span>
-                <span class="page-arrow">&gt;</span>
+                {{ $tickets->links() }}
             </div>
+            @endif
         </div>
     </div>
 

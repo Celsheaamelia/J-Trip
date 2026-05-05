@@ -23,6 +23,7 @@ class AuthService
 
         return 'USR' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
     }
+
     private function generateDetailUserId()
     {
         $last = DetailUser::orderBy('id_dtl_user', 'desc')->first();
@@ -36,27 +37,38 @@ class AuthService
 
         return 'DTL' . str_pad($number, 3, '0', STR_PAD_LEFT);
     }
+
     public function register($request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email|unique:user,email',
-            'password' => 'required|min:6|confirmed',
-            'no_telp' => 'required',
-            'jenis_identitas' => 'required',
-            'nomor_identitas' => 'required',
-        ]);
+    'name' => 'required',
+    'email' => 'required|email|unique:user,email',
+    'password' => 'required|min:6|confirmed',
+    'no_telp' => 'required',
+    'jenis_identitas' => 'required',
+    'nomor_identitas' => 'required',
+    'jenis_kelamin' => 'required',
+], [
+    'password.confirmed' => 'Konfirmasi password tidak sama.',
+    'password.required' => 'Password wajib diisi.',
+    'password.min' => 'Password minimal 6 karakter.',
+    'email.unique' => 'Email sudah terdaftar.',
+    'email.email' => 'Format email tidak valid.',
+    'name.required' => 'Nama lengkap wajib diisi.',
+    'no_telp.required' => 'Nomor telepon wajib diisi.',
+    'jenis_identitas.required' => 'Jenis identitas wajib dipilih.',
+    'nomor_identitas.required' => 'Nomor identitas wajib diisi.',
+    'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
+]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => $validator->errors()
-            ], 400);
+            return back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $userId = $this->generateUserId();
 
-        // SIMPAN USER
         $user = User::create([
             'id_user' => $userId,
             'name' => $request->name,
@@ -67,7 +79,6 @@ class AuthService
             'status' => 'aktif'
         ]);
 
-        // SIMPAN DETAIL USER
         DetailUser::create([
             'id_dtl_user' => $this->generateDetailUserId(),
             'id_user' => $user->id_user,
@@ -78,15 +89,13 @@ class AuthService
             'kewarganegaraan' => $request->kewarganegaraan
         ]);
 
-            Auth::login($user);
+        Auth::login($user);
 
-            if ($user->role === 'admin') {
-                return redirect('/admin/dashboard');
-            }
+        if ($user->role === 'admin') {
+            return redirect('/admin/dashboard');
+        }
 
-return redirect('/');
-
-            return redirect('/');
+        return redirect('/');
     }
 
     public function login($request)
@@ -94,21 +103,19 @@ return redirect('/');
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Email atau password salah'
-            ], 401);
+            return back()
+                ->withErrors([
+                    'email' => 'Email atau password salah'
+                ])
+                ->withInput();
         }
 
         Auth::login($user);
 
-            if ($user->role === 'admin') {
-                return redirect('/admin/dashboard');
-            }
-
-            return redirect('/');
+        if ($user->role === 'admin') {
+            return redirect('/admin/dashboard');
+        }
 
         return redirect('/');
-
     }
 }
