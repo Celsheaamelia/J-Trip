@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Wisata;
+use App\Models\DetailTiket;
 
 class Tiket extends Model
 {
@@ -43,4 +46,9 @@ class Tiket extends Model
     {
         return $this->hasMany(DetailTiket::class, 'id_tiket', 'id_tiket');
     }
+
+    public function transaksi()
+{
+    return $this->hasOne(Transaksi::class, 'id_tiket', 'id_tiket');
+}
 }

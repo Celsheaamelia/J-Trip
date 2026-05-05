@@ -163,11 +163,12 @@
             </p>
         </div>
 
-        <div class="filter-box mt-3 mt-md-0">
-            <input type="date">
-            <input type="date">
+
+        <form method="GET" action="{{ route('admin.laporan.index') }}" class="filter-box mt-3 mt-md-0">
+            <input type="date" name="start_date" value="{{ $start }}">
+            <input type="date" name="end_date" value="{{ $end }}">
             <button class="btn-apply">Terapkan</button>
-        </div>
+        </form>
     </div>
 
     {{-- SUMMARY --}}
@@ -176,16 +177,16 @@
         <div class="col-md-8">
             <div class="summary-card h-100">
                 <div class="summary-small">Total Tiket Terjual</div>
-                <h2>1.428.500</h2>
+                <h2>{{ number_format($totalTiketTerjual, 0, ',', '.') }}</h2>
 
                 <div class="d-flex gap-4 mt-3">
                     <div>
                         <div class="summary-small">Bulan Ini</div>
-                        <strong>84.2k</strong>
+                       <strong>Rp {{ number_format($bulanIni, 0, ',', '.') }}</strong>
                     </div>
                     <div>
                         <div class="summary-small">Bulan Lalu</div>
-                        <strong>58.6k</strong>
+                        <strong>Rp {{ number_format($bulanLalu, 0, ',', '.') }}</strong>
                     </div>
                 </div>
             </div>
@@ -194,7 +195,7 @@
         <div class="col-md-4">
             <div class="summary-box h-100">
                 <div class="summary-small">Total Transaksi</div>
-                <h3>24.812</h3>
+                <h3>{{ number_format($totalTransaksi, 0, ',', '.') }}</h3>
 
                 <div class="progress mt-3">
                     <div class="progress-bar" style="width: 70%"></div>
@@ -233,52 +234,41 @@
                 </thead>
 
                 <tbody>
-                    <tr>
-                        <td>#JSM-88210</td>
-                        <td>Puncak Rembangan</td>
-                        <td>21 Des 2025</td>
-                        <td><span class="badge-method">QRIS</span></td>
-                        <td class="nominal">Rp 125.000</td>
-                    </tr>
-
-                    <tr>
-                        <td>#JSM-88209</td>
-                        <td>Pantai Papuma</td>
-                        <td>21 Des 2025</td>
-                        <td><span class="badge-method">Transfer</span></td>
-                        <td class="nominal">Rp 450.000</td>
-                    </tr>
-
-                    <tr>
-                        <td>#JSM-88208</td>
-                        <td>Gn. Gambir</td>
-                        <td>21 Des 2025</td>
-                        <td><span class="badge-method">OVO</span></td>
-                        <td class="nominal">Rp 75.000</td>
-                    </tr>
-
-                    <tr>
-                        <td>#JSM-88207</td>
-                        <td>Air Terjun Tancak</td>
-                        <td>21 Des 2025</td>
-                        <td><span class="badge-method">QRIS</span></td>
-                        <td class="nominal">Rp 40.000</td>
-                    </tr>
-                </tbody>
+@forelse ($transaksis as $trx)
+    <tr>
+        <td>#{{ $trx->kode_pesanan ?? $trx->id_transaksi }}</td>
+        <td>{{ $trx->nama_wisata ?? '-' }}</td>
+        <td>{{ \Carbon\Carbon::parse($trx->dibuat_pada)->format('d M Y') }}</td>
+        <td>
+            <span class="badge-method">
+                {{ $trx->metode_pembayaran ?? '-' }}
+            </span>
+        </td>
+        <td class="nominal">
+            Rp {{ number_format($trx->grand_total ?? $trx->total_harga, 0, ',', '.') }}
+        </td>
+    </tr>
+@empty
+    <tr>
+        <td colspan="5" class="text-center text-muted py-4">
+            Data transaksi belum ada
+        </td>
+    </tr>
+@endforelse
+</tbody>
             </table>
         </div>
 
         {{-- FOOTER --}}
         <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
-            <div class="page-subtitle">Menampilkan 1-4 dari 24.000 transaksi</div>
+            <div class="page-subtitle">
+    Menampilkan {{ $transaksis->firstItem() ?? 0 }}-{{ $transaksis->lastItem() ?? 0 }}
+    dari {{ $transaksis->total() }} transaksi
+</div>
 
-            <div class="pagination-ui">
-                <span>&lt;</span>
-                <span class="active">1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>&gt;</span>
-            </div>
+           <div>
+    {{ $transaksis->links() }}
+</div>
         </div>
 
     </div>

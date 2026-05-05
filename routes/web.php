@@ -7,6 +7,36 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WisataController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\WisataUserController;
+use App\Http\Controllers\TiketController;
+use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\UmkmController;
+use App\Http\Controllers\LaporanController;
+
+Route::get('/admin/umkm', [UmkmController::class, 'index'])
+    ->name('admin.umkm.index');
+
+Route::get('/admin/umkm/create', [UmkmController::class, 'create'])
+    ->name('admin.umkm.create');
+
+Route::post('/admin/umkm/store', [UmkmController::class, 'store'])
+    ->name('admin.umkm.store');
+
+Route::get('/admin/umkm/{id}/edit', [UmkmController::class, 'edit'])
+    ->name('admin.umkm.edit');
+
+Route::put('/admin/umkm/{id}/update', [UmkmController::class, 'update'])
+    ->name('admin.umkm.update');
+
+Route::delete('/admin/umkm/{id}/delete', [UmkmController::class, 'destroy'])
+    ->name('admin.umkm.delete');
+
+Route::get('/admin/transaksi', [TransaksiController::class, 'index'])
+    ->name('admin.transaksi.index');
+
+Route::get('/tiket', [TiketController::class, 'index'])->name('tiket.index');
+Route::get('/tiket/{id}', [TiketController::class, 'show'])->name('tiket.show');
+Route::patch('/tiket/{id}/status', [TiketController::class, 'updateStatus'])->name('tiket.updateStatus');
+Route::delete('/tiket/{id}', [TiketController::class, 'destroy'])->name('tiket.destroy');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/wisata', [WisataUserController::class, 'index'])->name('wisata');
@@ -29,35 +59,14 @@ Route::get('/register', function () {
 
 Route::post('/register', [AuthController::class, 'register']);
 
-// Route::get('/', function () {
-//     return view('user.home');
-// })->name('home');
-
-// Route::get('/wisata', function () {
-//     return view('user.wisata');
-// })->name('wisata');
-
 Route::get('/admin/user', [UserController::class, 'index']);
 
-// Route::get('/admin/wisata', function () {
-//     return view('admin.wisata.index');
-// });
+Route::get('/admin/tiket', [TiketController::class, 'index'])
+    ->name('admin.tiket.index');
 
-Route::get('/admin/tiket', function () {
-    return view('admin.tiket.index');
-});
 
-Route::get('/admin/transaksi', function () {
-    return view('admin.transaksi.index');
-});
-
-Route::get('/admin/umkm', function () {
-    return view('admin.umkm.index');
-});
-
-Route::get('/admin/laporan', function () {
-    return view('admin.laporan.index');
-});
+Route::get('/admin/laporan', [LaporanController::class, 'index'])
+    ->name('admin.laporan.index');
 
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard.index');
