@@ -20,8 +20,8 @@
                 <li><a href="#tentang" class="nav-link">Tentang</a></li>
             </ul>
                 <div class="nav-auth">
-                <a href="#" class="btn-login">Login</a>
-                    <a href="#" class="btn-register">Register</a>
+                <a href="{{ url('/login') }}" class="btn-login">Login</a>
+                    <a href="{{ url('/register') }}" class="btn-register">Register</a>
                 </div>
             </div>
         </nav>
@@ -95,76 +95,36 @@
             <a href="{{ url('/wisata') }}" class="lihat-semua">Lihat semua wisata →</a>
         </div>
 
-        <div class="destinasi-grid">
-
-            <!-- CARD 1 -->
-            <div class="dest-card">
-                <div class="dest-img-wrap">
-                    <img src="{{ asset('assets/images/pantai-papuma.jpg') }}">
-                    <span class="dest-badge">Pantai</span>
-                </div>
-                <div class="dest-info">
-                    <h3>Pantai Papuma</h3>
-                    <p>Papuma adalah singkatan dari Pasir Putih Malikan, sebuah destinasi wisata pantai ikonik di Kabupaten Jember, Jawa Timur.</p>
-                    <div class="dest-footer">
-                        <span class="dest-price">Rp 15.000</span>
-                        <button class="btn-dest"
-                            data-title="Pantai Papuma"
-                            data-desc="Papuma adalah singkatan dari Pasir Putih Malikan, sebuah destinasi wisata pantai ikonik di Kabupaten Jember, Jawa Timur."
-                            data-img="{{ asset('assets/images/pantai-papuma.jpg') }}"
-                            data-price="15000"
-                            onclick="openModalFromBtn(this)">
-                            Lihat Detail
-                        </button>
-                    </div>
-                </div>
+ <div class="destinasi-grid">
+    @foreach ($wisata as $item)
+        <div class="dest-card">
+            <div class="dest-img-wrap">
+                <img src="{{ asset('uploads/wisata/' . $item->image) }}">
+                <span class="dest-badge">Wisata</span>
             </div>
 
-            <!-- CARD 2 -->
-            <div class="dest-card">
-                <div class="dest-img-wrap">
-                    <img src="{{ asset('assets/images/kebun-teh-gambir.jpg') }}">
-                    <span class="dest-badge">Alam</span>
-                </div>
-                <div class="dest-info">
-                    <h3>Kebun Teh Gambir</h3>
-                    <p>Nikmati kesejukan udara di pegunungan di hamparan kebun teh peninggalan kolonial dengan jembatan.</p>
-                    <div class="dest-footer">
-                        <span class="dest-price">Rp 10.000</span>
-                        <button class="btn-dest"
-                            data-title="Kebun Teh Gambir"
-                            data-desc="Nikmati kesejukan udara di pegunungan di hamparan kebun teh peninggalan kolonial dengan jembatan."
-                            data-img="{{ asset('assets/images/kebun-teh-gambir.jpg') }}"
-                            data-price="10000"
-                            onclick="openModalFromBtn(this)">
-                            Lihat Detail
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <div class="dest-info">
+                <h3>{{ $item->name }}</h3>
+                <p>{{ $item->description }}</p>
 
-            <!-- CARD 3 -->
-            <div class="dest-card">
-                <div class="dest-img-wrap">
-                    <img src="{{ asset('assets/images/air-terjun-tancak.jpg') }}">
-                    <span class="dest-badge">Air Terjun</span>
-                </div>
-                <div class="dest-info">
-                    <h3>Air Terjun Tancak</h3>
-                    <p>Air terjun tertinggi di Jember tersembunyi di kaki Gunung Argopuro, dikelilingi hutan kopi asri.</p>
-                    <div class="dest-footer">
-                        <span class="dest-price">Rp 5.000</span>
-                        <button class="btn-dest"
-                            data-title="Air Terjun Tancak"
-                            data-desc="Air terjun tertinggi di Jember tersembunyi di kaki Gunung Argopuro, dikelilingi hutan kopi asri."
-                            data-img="{{ asset('assets/images/air-terjun-tancak.jpg') }}"
-                            data-price="5000"
-                            onclick="openModalFromBtn(this)">
-                            Lihat Detail
-                        </button>
-                    </div>
+                <div class="dest-footer">
+                    <span class="dest-price">
+                        {{ $item->price == 0 ? 'Gratis' : 'Rp ' . number_format($item->price, 0, ',', '.') }}
+                    </span>
+
+                    <button class="btn-dest"
+                        data-title="{{ $item->name }}"
+                        data-desc="{{ $item->description }}"
+                        data-img="{{ asset('uploads/wisata/' . $item->image) }}"
+                        data-price="{{ $item->price }}"
+                        onclick="openModalFromBtn(this)">
+                        Lihat Detail
+                    </button>
                 </div>
             </div>
+        </div>
+    @endforeach
+</div>
 
         </div>
     </div>

@@ -131,21 +131,32 @@
     <div class="pgw" id="pgw"></div>
 </div>
 
+@php
+    $wisataData = $wisata->map(function ($item) {
+        $fotoUtama = asset('uploads/wisata/' . $item->image);
+
+        $galeri = $item->galeri->map(function ($g) {
+            return asset('uploads/galeri_wisata/' . $g->gambar);
+        })->values()->toArray();
+
+        return [
+            'id' => $item->id_wisata,
+            'nama' => $item->name,
+            'kategori' => 'Wisata',
+            'deskripsi' => $item->description,
+            'harga' => (int) $item->price,
+            'rating' => 4.8,
+            'foto' => $fotoUtama,
+            'lokasi' => $item->location_name,
+            'lat' => $item->latitude,
+            'lng' => $item->longitude,
+            'galeri' => count($galeri) ? $galeri : [$fotoUtama],
+        ];
+    })->values();
+@endphp
+
 <script>
-const DATA = [
-    { id:1, nama:"Pantai Papuma", kategori:"Pantai", deskripsi:"Tanjung Pasir Putih Malikan yang ikonik dengan gugusan pulau karang di tengah laut selatan.", harga:15000, rating:4.9, foto:"{{ asset('assets/images/pantai-papuma.jpg') }}" },
-    { id:2, nama:"Kebun Teh Gunung Gambir", kategori:"Kebun", deskripsi:"Nikmati kesejukan udara di pegunungan di hamparan kebun teh peninggalan kolonial dengan jembatan.", harga:10000, rating:4.7, foto:"{{ asset('assets/images/kebun-teh-gambir.jpg') }}" },
-    { id:3, nama:"Air Terjun Tancak", kategori:"Air Terjun", deskripsi:"Air terjun tertinggi di Jember tersembunyi di kaki Gunung Argopuro, dikelilingi hutan kopi asri.", harga:0, rating:4.8, foto:"{{ asset('assets/images/air-terjun-tancak.jpg') }}" },
-    { id:4, nama:"Puncak Rembangan", kategori:"Taman", deskripsi:"Puncak legendaris untuk melihat kerlip lampu kota Jember di perkebunan buah-buahan yang indah.", harga:7500, rating:4.6, foto:"{{ asset('assets/images/rembangan.jpg') }}" },
-    { id:5, nama:"Pantai Watu Ulo", kategori:"Pantai", deskripsi:"Pantai penuh legenda dengan susunan batu panjang yang menyerupai ular dan ombak yang memukau.", harga:10000, rating:4.5, foto:"{{ asset('assets/images/pantai-watu-ulo.jpg') }}" },
-    { id:6, nama:"Teluk Love", kategori:"Pantai", deskripsi:"Pemandangan teluk berbentuk hati yang sempurna jika dilihat dari atas Bukit Sianyo di Payangan.", harga:5000, rating:4.9, foto:"{{ asset('assets/images/teluk-love.jpg') }}" },
-    { id:7, nama:"Pantai Bandealit", kategori:"Pantai", deskripsi:"Pantai tersembunyi dalam kawasan Taman Nasional Meru Betiri, pasir putih bersih dan alami.", harga:20000, rating:4.8, foto:"{{ asset('assets/images/pantai-bandealit.jpg') }}" },
-    { id:8, nama:"Puncak Pondok 50", kategori:"Taman", deskripsi:"Spot perbukitan dengan panorama hijau luas dan udara sejuk, cocok menikmati sunrise yang indah.", harga:25000, rating:4.7, foto:"{{ asset('assets/images/puncak-pondok-50.jpg') }}" },
-    { id:9, nama:"Air Terjun Antrokan", kategori:"Air Terjun", deskripsi:"Air terjun bertingkat di kaki Gunung Raung dengan kolam alami jernih yang memanjakan mata.", harga:5000, rating:4.6, foto:"{{ asset('assets/images/air-terjun-antrokan.jpg') }}" },
-    { id:10, nama:"Kebun Gunung Pasang", kategori:"Kebun", deskripsi:"Perkebunan kopi dan karet dengan suasana pegunungan yang tenang dan alami.", harga:5000, rating:4.5, foto:"{{ asset('assets/images/gunung-pasang.jpeg') }}" },
-    { id:11, nama:"Pantai Payangan", kategori:"Pantai", deskripsi:"Pantai eksotis dengan ombak besar dan tebing karang dramatis, cocok untuk fotografi pemandangan.", harga:10000, rating:4.7, foto:"{{ asset('assets/images/pantai-payangan.jpg') }}" },
-    { id:12, nama:"Taman Botani Sukorambi", kategori:"Taman", deskripsi:"Kebun botani dengan koleksi tanaman tropis langka, wahana keluarga dan pemandian air hangat alami.", harga:35000, rating:4.5, foto:"{{ asset('assets/images/taman-botani-sukorambi.jpg') }}" }
-];
+const DATA = @json($wisataData);
 
 const PER = 6;
 let page = 1, kat = 'Semua', q = '';
@@ -352,44 +363,7 @@ input[type="date"]::-webkit-inner-spin-button { display:none; }
 
 <script>
 /* ===== DETAIL DATA WISATA ===== */
-const detailData = {
-    "Pantai Papuma": {
-        breadcrumb: "Pantai Tanjung Papuma",
-        lat: -8.432678, lng: 113.549728,
-        badges: [{label:"Pantai", color:"#16a34a"},{label:"Conservation", color:"#0284c7"}],
-        desc: "Papuma adalah singkatan dari Pasir Putih Malikan, sebuah destinasi wisata pantai ikonik di Kabupaten Jember, Jawa Timur. Nama ini menggambarkan karakteristik pantai yang memiliki pasir putih bersih dan keunikan batu karang yang seolah 'terbolak-balik' (Malikan). Papuma dikenal karena pemandangan matahari terbit, gugusan karang raksasa, dan hutan tropis di sekitarnya.",
-        harga: 15000,
-        foto: "{{ asset('assets/images/pantai-papuma.jpg') }}",
-        thumb1: "{{ asset('assets/images/pantai-papuma.jpg') }}",
-        thumb2: "{{ asset('assets/images/pantai-watu-ulo.jpg') }}",
-        allPhotos: ["{{ asset('assets/images/pantai-papuma.jpg') }}", "{{ asset('assets/images/pantai-watu-ulo.jpg') }}"],
-        mapsUrl: "https://www.google.com/maps/search/?api=1&query=Pantai+Papuma+Jember+-8.432678,113.549728"
-    },
-    "Kebun Teh Gunung Gambir": {
-        breadcrumb: "Kebun Teh Gunung Gambir",
-        lat: -8.035202, lng: 113.441566,
-        badges: [{label:"Kebun", color:"#16a34a"},{label:"Pegunungan", color:"#7c3aed"}],
-        desc: "Nikmati kesejukan udara di pegunungan di hamparan kebun teh peninggalan kolonial dengan jembatan. Kebun teh peninggalan kolonial Belanda ini menawarkan pemandangan yang menakjubkan dengan jalur trekking yang menyenangkan bagi para wisatawan.",
-        harga: 10000,
-        foto: "{{ asset('assets/images/kebun-teh-gambir.jpg') }}",
-        thumb1: "{{ asset('assets/images/kebun-teh-gambir.jpg') }}",
-        thumb2: "{{ asset('assets/images/rembangan.jpg') }}",
-        allPhotos: ["{{ asset('assets/images/kebun-teh-gambir.jpg') }}", "{{ asset('assets/images/rembangan.jpg') }}"],
-        mapsUrl: "https://www.google.com/maps/search/?api=1&query=Kebun+Teh+Gunung+Gambir+-8.035202,113.441566"
-    },
-    "Air Terjun Tancak": {
-        breadcrumb: "Air Terjun Tancak",
-        lat: -8.064874, lng: 113.618942,
-        badges: [{label:"Air Terjun", color:"#0891b2"},{label:"Alam", color:"#16a34a"}],
-        desc: "Air terjun tertinggi di Jember tersembunyi di kaki Gunung Argopuro, dikelilingi hutan kopi asri. Air terjun bertingkat yang spektakuler ini dikelilingi hutan tropis yang lebat, menawarkan keindahan alam yang masih alami dan udara yang sejuk menyegarkan.",
-        harga: 0,
-        foto: "{{ asset('assets/images/air-terjun-tancak.jpg') }}",
-        thumb1: "{{ asset('assets/images/air-terjun-tancak.jpg') }}",
-        thumb2: "{{ asset('assets/images/air-terjun-antrokan.jpg') }}",
-        allPhotos: ["{{ asset('assets/images/air-terjun-tancak.jpg') }}", "{{ asset('assets/images/air-terjun-antrokan.jpg') }}"],
-        mapsUrl: "https://www.google.com/maps/search/?api=1&query=Air+Terjun+Tancak+-8.064874,113.618942"
-    }
-};
+const detailData = {};
 
 let currentQty = 2;
 let currentHarga = 0;
@@ -404,15 +378,18 @@ function openModalFromBtn(btn) {
         if (!w) return;
         data = {
             breadcrumb: w.nama,
-            lat: null, lng: null,
+            lat: w.lat,
+            lng: w.lng,
             badges: [{label: w.kategori, color: "#1a7a5e"}],
             desc: w.deskripsi,
             harga: w.harga,
             foto: w.foto,
-            thumb1: w.foto,
-            thumb2: w.foto,
-            allPhotos: [w.foto],
-            mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(w.nama + " Jember")
+            thumb1: w.galeri?.[0] || w.foto,
+            thumb2: w.galeri?.[1] || w.foto,
+            allPhotos: w.galeri?.length ? w.galeri : [w.foto],
+            mapsUrl: w.lat && w.lng
+                ? `https://www.google.com/maps/search/?api=1&query=${w.lat},${w.lng}`
+                : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(w.nama + " " + (w.lokasi || "Jember"))
         };
     }
 

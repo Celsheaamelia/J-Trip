@@ -49,7 +49,7 @@
         <li class="nav-item">
             <a href="{{ url('/admin/umkm') }}"
                class="nav-link {{ $segment == 'umkm' ? 'active-menu' : '' }}">
-                <i class="bi bi-people-fill"></i>
+                <i class="bi bi-shop"></i>
                 <span>UMKM</span>
             </a>
         </li>
