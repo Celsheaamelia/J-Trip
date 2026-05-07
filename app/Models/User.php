@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'user';
 
@@ -19,15 +20,15 @@ class User extends Authenticatable
     protected $keyType = 'string';
 
     protected $fillable = [
-    'id_user',
-    'google_id',
-    'name',
-    'email',
-    'no_telp',
-    'avatar',
-    'password',
-    'role',
-    'status',
+        'id_user',
+        'google_id',
+        'name',
+        'email',
+        'no_telp',
+        'avatar',
+        'password',
+        'role',
+        'status',
     ];
 
     protected $hidden = [
@@ -50,11 +51,11 @@ class User extends Authenticatable
 
     public function tiket()
     {
-    return $this->hasMany(Tiket::class, 'id_user', 'id_user');
+        return $this->hasMany(Tiket::class, 'id_user', 'id_user');
     }
 
     public function transaksi()
-{
-    return $this->hasMany(Transaksi::class, 'id_user', 'id_user');
-}
+    {
+        return $this->hasMany(Transaksi::class, 'id_user', 'id_user');
+    }
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Wisata;
 use App\Models\DetailTiket;
+use App\Models\Transaksi;
 
 class Tiket extends Model
 {
