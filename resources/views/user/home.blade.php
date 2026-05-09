@@ -112,12 +112,10 @@
                         {{ $item->price == 0 ? 'Gratis' : 'Rp ' . number_format($item->price, 0, ',', '.') }}
                     </span>
 
-                    <button class="btn-dest"
-                        data-title="{{ $item->name }}"
-                        data-desc="{{ $item->description }}"
-                        data-img="{{ asset('uploads/wisata/' . $item->image) }}"
-                        data-price="{{ $item->price }}"
-                        onclick="openModalFromBtn(this)">
+                    <button type="button"
+                        class="btn-dest"
+                        data-id="{{ $item->id_wisata }}"
+                        onclick="openDetailById(this)">
                         Lihat Detail
                     </button>
                 </div>
@@ -444,85 +442,82 @@ input[type="date"]::-ms-clear { display:none; }
 .img-loading { background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%); background-size:600px 100%; animation:shimmer 1.4s infinite; }
 </style>
 
+@php
+    $wisataData = $wisata->map(function ($item) {
+        $fotoUtama = asset('uploads/wisata/' . $item->image);
+
+        $galeri = $item->galeri->map(function ($g) {
+            return asset('uploads/galeri_wisata/' . $g->gambar);
+        })->values()->toArray();
+
+        return [
+            'id' => $item->id_wisata,
+            'nama' => $item->name,
+            'kategori' => 'Wisata',
+            'deskripsi' => $item->description,
+            'harga' => (int) $item->price,
+            'foto' => $fotoUtama,
+            'lokasi' => $item->location_name,
+            'lat' => $item->latitude,
+            'lng' => $item->longitude,
+            'galeri' => count($galeri) ? $galeri : [$fotoUtama],
+        ];
+    })->values();
+@endphp
+
 <script>
-const detailData = {
-    "Pantai Papuma": {
-        breadcrumb: "Pantai Tanjung Papuma",
-        lat: -8.432678, lng: 113.549728,
-        badges: [{label:"Pantai", color:"#16a34a"},{label:"Conservation", color:"#0284c7"}],
-        desc: "Papuma adalah singkatan dari Pasir Putih Malikan, sebuah destinasi wisata pantai ikonik di Kabupaten Jember, Jawa Timur. Nama ini menggambarkan karakteristik pantai yang memiliki pasir putih bersih dan keunikan batu karang yang seolah 'terbolak-balik' (Malikan). Papuma dikenal karena pemandangan matahari terbit, gugusan karang raksasa, dan hutan tropis di sekitarnya.",
-        harga: 15000,
-        foto: "{{ asset('assets/images/pantai-papuma.jpg') }}",
-        thumb1: "{{ asset('assets/images/pantai-papuma.jpg') }}",
-        thumb2: "{{ asset('assets/images/pantai-watu-ulo.jpg') }}",
-        allPhotos: [
-            "{{ asset('assets/images/pantai-papuma.jpg') }}",
-            "{{ asset('assets/images/pantai-watu-ulo.jpg') }}",
-            "{{ asset('assets/images/papuma.jpg') }}"
-        ],
-        mapsUrl: "https://www.google.com/maps/search/?api=1&query=Pantai+Papuma+Jember+-8.432678,113.549728"
-    },
-    "Kebun Teh Gambir": {
-        breadcrumb: "Kebun Teh Gunung Gambir",
-        lat: -8.035202, lng: 113.441566,
-        badges: [{label:"Alam", color:"#16a34a"},{label:"Pegunungan", color:"#7c3aed"}],
-        desc: "Nikmati kesejukan udara di pegunungan di hamparan kebun teh peninggalan kolonial dengan jembatan. Kebun teh peninggalan kolonial Belanda ini menawarkan pemandangan yang menakjubkan dengan jalur trekking yang menyenangkan bagi para wisatawan.",
-        harga: 10000,
-        foto: "{{ asset('assets/images/kebun-teh-gambir.jpg') }}",
-        thumb1: "{{ asset('assets/images/kebun-teh-gambir.jpg') }}",
-        thumb2: "{{ asset('assets/images/rembangan.jpg') }}",
-        allPhotos: [
-            "{{ asset('assets/images/kebun-teh-gambir.jpg') }}",
-            "{{ asset('assets/images/rembangan.jpg') }}"
-        ],
-        mapsUrl: "https://www.google.com/maps/search/?api=1&query=Kebun+Teh+Gunung+Gambir+-8.035202,113.441566"
-    },
-    "Air Terjun Tancak": {
-        breadcrumb: "Air Terjun Tancak",
-        lat: -8.064874, lng: 113.618942,
-        badges: [{label:"Air Terjun", color:"#0891b2"},{label:"Alam", color:"#16a34a"}],
-        desc: "Air terjun tertinggi di Jember tersembunyi di kaki Gunung Argopuro, dikelilingi hutan kopi asri. Air terjun bertingkat yang spektakuler ini dikelilingi hutan tropis yang lebat, menawarkan keindahan alam yang masih alami dan udara yang sejuk menyegarkan.",
-        harga: 5000,
-        foto: "{{ asset('assets/images/air-terjun-tancak.jpg') }}",
-        thumb1: "{{ asset('assets/images/air-terjun-tancak.jpg') }}",
-        thumb2: "{{ asset('assets/images/air-terjun-antrokan.jpg') }}",
-        allPhotos: [
-            "{{ asset('assets/images/air-terjun-tancak.jpg') }}",
-            "{{ asset('assets/images/air-terjun-antrokan.jpg') }}"
-        ],
-        mapsUrl: "https://www.google.com/maps/search/?api=1&query=Air+Terjun+Tancak+-8.064874,113.618942"
-    }
-};
+const DATA = @json($wisataData);
 
 let currentQty = 2;
 let currentHarga = 0;
 let currentPhotos = [];
+let selectedWisata = null;
 
 function openModalFromBtn(btn) {
     const title = btn.getAttribute('data-title');
-    const data = detailData[title];
-    if (!data) return;
+    const w = DATA.find(x => x.nama === title);
+
+    if (!w) {
+        alert('Data wisata tidak ditemukan.');
+        return;
+    }
+
+    selectedWisata = w;
+
+    const data = {
+        breadcrumb: w.nama,
+        lat: w.lat,
+        lng: w.lng,
+        badges: [{ label: w.kategori, color: "#1a7a5e" }],
+        desc: w.deskripsi,
+        harga: w.harga,
+        foto: w.foto,
+        thumb1: w.galeri?.[0] || w.foto,
+        thumb2: w.galeri?.[1] || w.foto,
+        allPhotos: w.galeri?.length ? w.galeri : [w.foto],
+        mapsUrl: w.lat && w.lng
+            ? `https://www.google.com/maps/search/?api=1&query=${w.lat},${w.lng}`
+            : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(w.nama + " " + (w.lokasi || "Jember"))
+    };
 
     document.getElementById('detailTitle').textContent = title;
     document.getElementById('detailBreadcrumb').textContent = data.breadcrumb;
     document.getElementById('detailDesc').textContent = data.desc;
 
-    const badgeEl = document.getElementById('detailBadges');
-    badgeEl.innerHTML = (data.badges || []).map(b =>
-        `<span style="background:${b.color};color:#fff;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:50px;letter-spacing:.3px;box-shadow:0 2px 6px rgba(0,0,0,.18);">${b.label}</span>`
+    document.getElementById('detailBadges').innerHTML = data.badges.map(b =>
+        `<span style="background:${b.color};color:#fff;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:50px;">${b.label}</span>`
     ).join('');
 
     currentHarga = data.harga;
-    document.getElementById('detailPrice').textContent = data.harga === 0 ? 'Gratis' : 'Rp ' + data.harga.toLocaleString('id-ID');
+    document.getElementById('detailPrice').textContent =
+        data.harga === 0 ? 'Gratis' : 'Rp ' + data.harga.toLocaleString('id-ID');
+
     document.getElementById('detailMainImg').src = data.foto;
     document.getElementById('detailThumbImg1').src = data.thumb1;
     document.getElementById('detailThumbImg2').src = data.thumb2;
-    currentPhotos = data.allPhotos || [data.foto, data.thumb1, data.thumb2];
+    currentPhotos = data.allPhotos;
 
-    document.getElementById('btnLihatLokasi').onclick = () => {
-        const url = `https://www.google.com/maps/search/?api=1&query=${data.breadcrumb}+${data.lat},${data.lng}`;
-        window.open(url, '_blank');
-    };
+    document.getElementById('btnLihatLokasi').onclick = () => window.open(data.mapsUrl, '_blank');
 
     currentQty = 2;
     updateQtyDisplay();
@@ -530,9 +525,11 @@ function openModalFromBtn(btn) {
 
     const slide = document.getElementById('detailSlide');
     const card = document.getElementById('detailCard');
+
     card.classList.remove('card-visible');
     slide.style.display = 'block';
     document.body.style.overflow = 'hidden';
+
     requestAnimationFrame(() => requestAnimationFrame(() => {
         slide.style.transform = 'translateX(0)';
         setTimeout(() => card.classList.add('card-visible'), 180);
@@ -600,6 +597,62 @@ function updateQtyDisplay() {
     } else {
         totalEl.textContent = 'Rp ' + (currentHarga * currentQty).toLocaleString('id-ID');
     }
+}
+
+function openDetailById(btn) {
+    const id = btn.getAttribute('data-id');
+    const wisata = DATA.find(item => String(item.id) === String(id));
+
+    if (!wisata) {
+        alert('Data wisata tidak ditemukan.');
+        return;
+    }
+
+    selectedWisata = wisata;
+
+    document.getElementById('detailTitle').textContent = wisata.nama;
+    document.getElementById('detailBreadcrumb').textContent = wisata.nama;
+    document.getElementById('detailDesc').textContent = wisata.deskripsi;
+
+    document.getElementById('detailBadges').innerHTML = `
+        <span style="background:#1a7a5e;color:#fff;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:50px;">
+            Wisata
+        </span>
+    `;
+
+    currentHarga = wisata.harga;
+    currentPhotos = wisata.galeri?.length ? wisata.galeri : [wisata.foto];
+
+    document.getElementById('detailPrice').textContent =
+        wisata.harga === 0 ? 'Gratis' : 'Rp ' + wisata.harga.toLocaleString('id-ID');
+
+    document.getElementById('detailMainImg').src = wisata.foto;
+    document.getElementById('detailThumbImg1').src = currentPhotos[0] || wisata.foto;
+    document.getElementById('detailThumbImg2').src = currentPhotos[1] || wisata.foto;
+
+    document.getElementById('btnLihatLokasi').onclick = () => {
+        const url = wisata.lat && wisata.lng
+            ? `https://www.google.com/maps/search/?api=1&query=${wisata.lat},${wisata.lng}`
+            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(wisata.nama + ' Jember')}`;
+
+        window.open(url, '_blank');
+    };
+
+    currentQty = 2;
+    updateQtyDisplay();
+    document.getElementById('detailDate').value = '';
+
+    const slide = document.getElementById('detailSlide');
+    const card = document.getElementById('detailCard');
+
+    card.classList.remove('card-visible');
+    slide.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        slide.style.transform = 'translateX(0)';
+        setTimeout(() => card.classList.add('card-visible'), 180);
+    }));
 }
 
 document.addEventListener('keydown', e => {
@@ -1271,14 +1324,27 @@ document.getElementById('galleryModal').addEventListener('click', function(e) {
     }
 
     function handlePesan() {
-        const date = document.getElementById('detailDate').value;
-        if (!date) { alert('Silakan pilih tanggal terlebih dahulu.'); return; }
-        const title = document.getElementById('detailTitle').textContent;
-        const foto = document.getElementById('detailMainImg').src;
-        const priceEl = document.getElementById('detailPrice').textContent;
-        const hargaRaw = priceEl === 'Gratis' ? 0 : parseInt(priceEl.replace(/[^0-9]/g, ''), 10);
-        openPayment({ namaDestinasi: title, foto: foto, tanggal: date, qty: currentQty, harga: hargaRaw });
+    const date = document.getElementById('detailDate').value;
+
+    if (!date) {
+        alert('Silakan pilih tanggal terlebih dahulu.');
+        return;
     }
+
+    if (!selectedWisata || !selectedWisata.id) {
+        alert('Data wisata tidak ditemukan.');
+        return;
+    }
+
+    openPayment({
+        idWisata: selectedWisata.id,
+        namaDestinasi: selectedWisata.nama,
+        foto: document.getElementById('detailMainImg').src,
+        tanggal: date,
+        qty: currentQty,
+        harga: currentHarga
+    });
+}
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
