@@ -12,6 +12,7 @@ use App\Http\Controllers\MidtransController;
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/auth/me', [AuthApiController::class, 'me']);
         Route::post('/auth/logout', [AuthApiController::class, 'logout']);
+        Route::put('/auth/profile', [AuthApiController::class, 'updateProfile']);
     });
     Route::post('/midtrans/notification', [MidtransController::class, 'notification'])
     ->name('midtrans.notification');

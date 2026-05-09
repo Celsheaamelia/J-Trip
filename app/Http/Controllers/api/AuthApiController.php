@@ -41,6 +41,30 @@ class AuthApiController extends Controller
         return 'DTL' . str_pad($number, 3, '0', STR_PAD_LEFT);
     }
 
+    public function updateProfile(Request $request)
+{
+    $user = $request->user();
+
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'no_telp' => 'nullable|string|max:20',
+        'kewarganegaraan' => 'nullable|string',
+        'jenis_identitas' => 'nullable|string',
+        'nomor_identitas' => 'nullable|string',
+        'jenis_kelamin' => 'nullable|string',
+        'tanggal_lahir' => 'nullable|date',
+    ]);
+
+    $user->update($validated);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Profil berhasil diperbarui',
+        'data' => $user,
+    ]);
+}
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
