@@ -99,23 +99,38 @@ class AuthService
     }
 
     public function login($request)
-    {
-        $user = User::where('email', $request->email)->first();
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email',
+        'password' => 'required',
+    ], [
+        'email.required' => 'Email wajib diisi.',
+        'email.email' => 'Format email tidak valid.',
+        'password.required' => 'Password wajib diisi.',
+    ]);
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return back()
-                ->withErrors([
-                    'email' => 'Email atau password salah'
-                ])
-                ->withInput();
-        }
-
-        Auth::login($user);
-
-        if ($user->role === 'admin') {
-            return redirect('/admin/dashboard');
-        }
-
-        return redirect('/');
+    if ($validator->fails()) {
+        return back()
+            ->withErrors($validator)
+            ->withInput();
     }
+
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return back()
+            ->withErrors([
+                'login' => 'Email atau password salah'
+            ])
+            ->withInput();
+    }
+
+    Auth::login($user);
+
+    if ($user->role === 'admin') {
+        return redirect('/admin/dashboard');
+    }
+
+    return redirect('/');
+}
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Umkm;
+use App\Models\Wisata;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -18,18 +19,33 @@ class UmkmController extends Controller
 
     public function create()
     {
-        return view('admin.umkm.create');
+        $wisata = Wisata::orderBy('name', 'asc')->get();
+
+        return view('admin.umkm.create', compact('wisata'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required',
-            'pemilik' => 'required',
+            'nama' => 'required|string|max:255',
+            'pemilik' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'id_wisata' => 'nullable|exists:wisata,id_wisata',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
         ]);
+        $exists = Umkm::where('nama', $request->nama)
+    ->where('pemilik', $request->pemilik)
+    ->where('id_wisata', $request->id_wisata)
+    ->exists();
 
+if ($exists) {
+    return redirect()
+        ->route('admin.umkm.index')
+        ->with('success', 'Data UMKM sudah ada, tidak ditambahkan ulang.');
+}
         Umkm::create([
-            'id_umkm' => strtoupper(Str::random(6)),
+            'id_umkm' => $this->generateUmkmId(),
             'nama' => $request->nama,
             'pemilik' => $request->pemilik,
             'deskripsi' => $request->deskripsi,
@@ -38,17 +54,30 @@ class UmkmController extends Controller
             'longitude' => $request->longitude,
         ]);
 
-        return redirect()->route('umkm.index')->with('success', 'UMKM berhasil ditambahkan');
+        return redirect()
+            ->route('admin.umkm.index')
+            ->with('success', 'UMKM berhasil ditambahkan');
     }
 
     public function edit($id)
     {
         $umkm = Umkm::findOrFail($id);
-        return view('admin.umkm.edit', compact('umkm'));
+        $wisata = Wisata::orderBy('name', 'asc')->get();
+
+        return view('admin.umkm.edit', compact('umkm', 'wisata'));
     }
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'pemilik' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'id_wisata' => 'nullable|exists:wisata,id_wisata',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+        ]);
+
         $umkm = Umkm::findOrFail($id);
 
         $umkm->update([
@@ -60,12 +89,32 @@ class UmkmController extends Controller
             'longitude' => $request->longitude,
         ]);
 
-        return redirect()->route('umkm.index')->with('success', 'UMKM berhasil diupdate');
+        return redirect()
+            ->route('admin.umkm.index')
+            ->with('success', 'UMKM berhasil diupdate');
     }
 
     public function destroy($id)
     {
-        Umkm::destroy($id);
-        return back()->with('success', 'UMKM berhasil dihapus');
+        $umkm = Umkm::findOrFail($id);
+        $umkm->delete();
+
+        return redirect()
+            ->route('admin.umkm.index')
+            ->with('success', 'UMKM berhasil dihapus');
+    }
+
+    private function generateUmkmId()
+    {
+        $last = Umkm::orderBy('id_umkm', 'desc')->first();
+
+        if (!$last) {
+            return 'UMK001';
+        }
+
+        $number = (int) substr($last->id_umkm, 3);
+        $number++;
+
+        return 'UMK' . str_pad($number, 3, '0', STR_PAD_LEFT);
     }
 }

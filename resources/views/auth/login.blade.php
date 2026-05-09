@@ -212,7 +212,7 @@
                 cursor: pointer;
                 opacity: 0.7;
             }
-            
+
             .google-btn {
                 width: 100%;
                 height: 46px;
@@ -277,14 +277,22 @@
         </a>
 
         <div class="divider">ATAU GUNAKAN EMAIL</div>
-
+        @if ($errors->any())
+            <div style="background:#fee2e2;color:#991b1b;padding:12px 14px;border-radius:10px;margin-bottom:16px;font-size:13px;">
+                <ul style="margin:0;padding-left:18px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form action="{{ url('/login') }}" method="POST">
             @csrf
 
             <label>Email</label>
             <div class="input-box">
                 <img src="{{ asset('assets/icons/email.png') }}" class="input-icon">
-                <input type="email" name="email" placeholder="contoh@email.com">
+                <input type="email" name="email" value="{{ old('email') }}" placeholder="contoh@email.com">
             </div>
 
             <label>Password</label>

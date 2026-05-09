@@ -11,6 +11,7 @@ use App\Http\Controllers\TiketController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\UmkmController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\MidtransController;
 
 Route::get('/admin/umkm', [UmkmController::class, 'index'])
     ->name('admin.umkm.index');
@@ -81,3 +82,9 @@ Route::post('/admin/wisata/store', [WisataController::class, 'store']);
 Route::get('/admin/wisata/{id}/edit', [WisataController::class, 'edit']);
 Route::put('/admin/wisata/{id}/update', [WisataController::class, 'update']);
 Route::delete('/admin/wisata/{id}/delete', [WisataController::class, 'destroy']);
+
+
+Route::post('/midtrans/snap-token/{id}', [MidtransController::class, 'createSnapToken'])
+    ->name('midtrans.snap-token');
+Route::post('/checkout/midtrans', [MidtransController::class, 'checkout'])
+    ->name('midtrans.checkout');

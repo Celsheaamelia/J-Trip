@@ -87,7 +87,12 @@
         @media(max-width:900px){.wg{grid-template-columns:repeat(2,1fr)}.ph,.sf-bar,.ww{padding-left:20px;padding-right:20px}.navbar{padding:0 20px}}
         @media(max-width:580px){.wg{grid-template-columns:1fr}.nav-links{display:none}}
     </style>
+    <script
+    src="https://app.sandbox.midtrans.com/snap/snap.js"
+    data-client-key="{{ config('services.midtrans.client_key') }}">
+</script>
 </head>
+
 <body>
 
 <nav class="navbar">
@@ -120,7 +125,7 @@
     <div class="ftabs" id="ftabs">
         <button class="ft on" data-k="Semua">Semua</button>
         <button class="ft" data-k="Pantai">Pantai</button>
-        <button class="ft" data-k="Taman">Taman</button>
+        <button class="ft" data-k="Bukit">Bukit</button>
         <button class="ft" data-k="Kebun">Kebun</button>
         <button class="ft" data-k="Air Terjun">Air Terjun</button>
     </div>
@@ -142,7 +147,7 @@
         return [
             'id' => $item->id_wisata,
             'nama' => $item->name,
-            'kategori' => 'Wisata',
+            'kategori' => $item->kategori ?? 'Wisata',
             'deskripsi' => $item->description,
             'harga' => (int) $item->price,
             'rating' => 4.8,
@@ -163,7 +168,14 @@ let page = 1, kat = 'Semua', q = '';
 
 function render() {
     const grid = document.getElementById('wgrid');
-    let data = DATA.filter(w => (kat==='Semua'||w.kategori===kat) && w.nama.toLowerCase().includes(q.toLowerCase()));
+    let data = DATA.filter(w => {
+    const kategori = (w.kategori || '').trim().toLowerCase();
+    const filter = kat.trim().toLowerCase();
+    const nama = (w.nama || '').toLowerCase();
+
+    return (filter === 'semua' || kategori === filter) &&
+           nama.includes(q.toLowerCase());
+});
     const total = Math.max(1, Math.ceil(data.length/PER));
     if (page > total) page = total;
     const slice = data.slice((page-1)*PER, page*PER);
@@ -368,14 +380,18 @@ const detailData = {};
 let currentQty = 2;
 let currentHarga = 0;
 let currentPhotos = [];
+let selectedWisata = null;
 
 function openModalFromBtn(btn) {
     const title = btn.getAttribute('data-title');
     let data = detailData[title];
 
+    const w = DATA.find(x => x.nama === title);
+    if (!w) return;
+
+    selectedWisata = w;
+
     if (!data) {
-        const w = DATA.find(x => x.nama === title);
-        if (!w) return;
         data = {
             breadcrumb: w.nama,
             lat: w.lat,
@@ -491,10 +507,28 @@ function updateQtyDisplay() {
 
 function handlePesan() {
     const date = document.getElementById('detailDate').value;
-    if (!date) { alert('Silakan pilih tanggal terlebih dahulu.'); return; }
+
+    if (!date) {
+        alert('Silakan pilih tanggal terlebih dahulu.');
+        return;
+    }
+
+    if (!selectedWisata || !selectedWisata.id) {
+        alert('Data wisata tidak ditemukan.');
+        return;
+    }
+
     const title = document.getElementById('detailTitle').textContent;
     const foto = document.getElementById('detailMainImg').src;
-    openPayment({ namaDestinasi: title, foto: foto, tanggal: date, qty: currentQty, harga: currentHarga });
+
+    openPayment({
+        idWisata: selectedWisata.id,
+        namaDestinasi: title,
+        foto: foto,
+        tanggal: date,
+        qty: currentQty,
+        harga: currentHarga
+    });
 }
 
 document.addEventListener('keydown', e => {
@@ -542,205 +576,138 @@ document.getElementById('galleryModal').addEventListener('click', function(e) {
 
     <div style="display:flex;overflow-y:auto;max-height:calc(90vh - 52px);">
 
-        {{-- KOLOM KIRI: METODE --}}
-        <div style="flex:1;padding:28px 32px;border-right:1px solid #f3f4f6;min-width:0;">
-            <h1 style="font-size:1.9rem;font-weight:900;color:#1a4a2e;margin:0 0 4px;letter-spacing:-.5px;">Pembayaran</h1>
-            <p style="font-size:.8rem;color:#6b7280;margin:0 0 26px;">Ayo selesaikan pembayaranmu untuk segera menikmati liburan!</p>
+        {{-- KOLOM KIRI: RINGKASAN HARGA --}}
+<div style="flex:1;padding:28px 32px;border-right:1px solid #f3f4f6;min-width:0;">
+    <h1 style="font-size:1.9rem;font-weight:900;color:#1a4a2e;margin:0 0 4px;letter-spacing:-.5px;">
+        Ringkasan Pesanan
+    </h1>
 
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="1.8">
-                    <rect x="2" y="7" width="20" height="14" rx="2"/>
-                    <path d="M16 3H8L2 7h20l-6-4z"/>
+    <p style="font-size:.8rem;color:#6b7280;margin:0 0 26px;line-height:1.6;">
+        Periksa kembali detail tiket sebelum melanjutkan pembayaran melalui Midtrans.
+    </p>
+
+    <div style="padding:18px;border:1.5px solid #e5e7eb;border-radius:14px;background:#fff;margin-bottom:18px;">
+        <p style="font-size:.68rem;font-weight:800;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin:0 0 8px;">
+            Destinasi
+        </p>
+        <h3 id="payNamaDestinasiLeft" style="font-size:1.15rem;font-weight:900;color:#111827;margin:0;line-height:1.35;"></h3>
+    </div>
+
+    <div style="padding:18px;border:1.5px solid #e5e7eb;border-radius:14px;background:#fff;margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div>
+                <p style="font-size:.68rem;font-weight:800;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin:0 0 5px;">
+                    Tanggal Kunjungan
+                </p>
+                <p id="payTanggalLeft" style="font-size:.9rem;font-weight:800;color:#111827;margin:0;"></p>
+            </div>
+
+            <div style="width:38px;height:38px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#1a7a5e" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
-                <span style="font-size:.95rem;font-weight:800;color:#111827;">Metode Pembayaran</span>
-            </div>
-
-            {{-- VIRTUAL ACCOUNT --}}
-            <div style="border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:10px;overflow:hidden;">
-                <div onclick="toggleAccordion('va')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;background:#fff;transition:background .15s;"
-                    onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="1.8">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <path d="M3 9h18"/><path d="M9 21V9"/>
-                        </svg>
-                        <span style="font-size:.88rem;font-weight:600;color:#374151;">Virtual Account</span>
-                    </div>
-                    <svg id="vaChevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2" style="transition:transform .25s;">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-                <div id="vaContent" style="padding:6px 18px 18px;display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid #f3f4f6;background:#fff;">
-                    <div onclick="selectPayment(this,'BCA VA')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                        <span style="font-size:.62rem;font-weight:800;color:#1a7a5e;letter-spacing:.3px;display:block;">BCA</span>
-                        <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">BCA VA</span>
-                    </div>
-                    <div onclick="selectPayment(this,'BNI VA')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                        <span style="font-size:.62rem;font-weight:800;color:#e65c00;letter-spacing:.3px;display:block;">BNI</span>
-                        <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">BNI VA</span>
-                    </div>
-                    <div onclick="selectPayment(this,'BRI VA')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                        <span style="font-size:.62rem;font-weight:800;color:#1655a2;letter-spacing:.3px;display:block;">BRI</span>
-                        <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">BRI VA</span>
-                    </div>
-                    <div onclick="selectPayment(this,'Mandiri Bill')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                        <span style="font-size:.62rem;font-weight:800;color:#f5a623;letter-spacing:.3px;display:block;">Mandiri</span>
-                        <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">Mandiri Bill</span>
-                    </div>
-                </div>
-            </div>
-
-            {{-- E-WALLET & QRIS --}}
-            <div style="border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:10px;overflow:hidden;">
-                <div onclick="toggleAccordion('ewallet')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;background:#fff;transition:background .15s;"
-                    onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="1.8">
-                            <rect x="2" y="5" width="20" height="14" rx="2"/>
-                            <path d="M16 13a1 1 0 100-2 1 1 0 000 2z" fill="#374151"/>
-                        </svg>
-                        <span style="font-size:.88rem;font-weight:600;color:#374151;">E-Wallet & QRIS</span>
-                    </div>
-                    <svg id="ewalletChevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2" style="transition:transform .25s;transform:rotate(-90deg);">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-                <div id="ewalletContent" style="display:none;padding:14px 18px;border-top:1px solid #f3f4f6;">
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <div onclick="selectPayment(this,'GoPay')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                            <span style="font-size:.62rem;font-weight:800;color:#00aed6;display:block;">GoPay</span>
-                            <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">GoPay</span>
-                        </div>
-                        <div onclick="selectPayment(this,'OVO')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                            <span style="font-size:.62rem;font-weight:800;color:#4c3494;display:block;">OVO</span>
-                            <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">OVO</span>
-                        </div>
-                        <div onclick="selectPayment(this,'QRIS')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                            <span style="font-size:.62rem;font-weight:800;color:#e11d48;display:block;">QRIS</span>
-                            <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">Scan QR</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- CREDIT / DEBIT --}}
-            <div style="border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:22px;overflow:hidden;">
-                <div onclick="toggleAccordion('card')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;background:#fff;transition:background .15s;"
-                    onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="1.8">
-                            <rect x="2" y="5" width="20" height="14" rx="2"/>
-                            <path d="M2 10h20"/>
-                        </svg>
-                        <span style="font-size:.88rem;font-weight:600;color:#374151;">Credit / Debit Card</span>
-                    </div>
-                    <svg id="cardChevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2" style="transition:transform .25s;transform:rotate(-90deg);">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-                <div id="cardContent" style="display:none;padding:14px 18px;border-top:1px solid #f3f4f6;">
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <div onclick="selectPayment(this,'Visa')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                            <span style="font-size:.62rem;font-weight:900;color:#1a1f71;display:block;letter-spacing:1px;">VISA</span>
-                            <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">Visa</span>
-                        </div>
-                        <div onclick="selectPayment(this,'Mastercard')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                            <span style="font-size:.62rem;font-weight:800;color:#eb001b;display:block;">MC</span>
-                            <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">Mastercard</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:flex;gap:13px;align-items:flex-start;padding:14px 18px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#1a7a5e" stroke-width="2" style="flex-shrink:0;margin-top:1px;">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-                <div>
-                    <p style="font-size:.8rem;font-weight:700;color:#1a4a2e;margin:0 0 3px;">Secure Transaction</p>
-                    <p style="font-size:.72rem;color:#6b7280;margin:0;line-height:1.5;">Your payment information is encrypted and processed securely. We never store your card details on our servers.</p>
-                </div>
             </div>
         </div>
 
-        {{-- KOLOM KANAN: RINGKASAN --}}
-        <div style="width:320px;flex-shrink:0;display:flex;flex-direction:column;">
-            <div style="position:relative;height:160px;background:#c8e0d8;overflow:hidden;">
-                <img id="payFotoDestinasi" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"
-                     onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80'">
-                <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.65) 0%,transparent 100%);padding:22px 18px 14px;">
-                    <p style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.7);margin:0 0 2px;letter-spacing:.8px;text-transform:uppercase;">Destinasi Pilihan</p>
-                    <p id="payNamaDestinasi" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;"></p>
-                </div>
-            </div>
+        <div style="height:1px;background:#f3f4f6;margin:14px 0;"></div>
 
-            <div style="padding:20px 20px 0;flex:1;">
-                <div style="display:flex;gap:20px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #f3f4f6;">
-                    <div>
-                        <p style="font-size:.6rem;font-weight:700;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin:0 0 5px;">Tanggal</p>
-                        <div style="display:flex;align-items:center;gap:5px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2"/>
-                                <line x1="16" y1="2" x2="16" y2="6"/>
-                                <line x1="8" y1="2" x2="8" y2="6"/>
-                                <line x1="3" y1="10" x2="21" y2="10"/>
-                            </svg>
-                            <span id="payTanggal" style="font-size:.82rem;font-weight:700;color:#111827;"></span>
-                        </div>
-                    </div>
-                    <div>
-                        <p style="font-size:.6rem;font-weight:700;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin:0 0 5px;">Waktu</p>
-                        <div style="display:flex;align-items:center;gap:5px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M12 6v6l4 2"/>
-                            </svg>
-                            <span style="font-size:.82rem;font-weight:700;color:#111827;">08:00 AM</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom:18px;">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-                        <span id="payLabelEntry" style="font-size:.82rem;color:#374151;">Standard Entry (x2)</span>
-                        <span id="paySubtotal" style="font-size:.82rem;font-weight:700;color:#111827;"></span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-                        <span style="font-size:.82rem;color:#374151;">Local Guide Svc</span>
-                        <span style="font-size:.82rem;font-weight:700;color:#111827;">Rp 0</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="font-size:.75rem;color:#9ca3af;">Service Fee & Tax</span>
-                        <span style="font-size:.75rem;color:#9ca3af;">Rp 0</span>
-                    </div>
-                </div>
-
-                <div style="border-top:1.5px solid #f3f4f6;margin-bottom:16px;"></div>
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-                    <span style="font-size:.88rem;font-weight:700;color:#111827;">Total Pembayaran</span>
-                    <div style="text-align:right;line-height:1.1;">
-                        <div id="payTotal" style="font-size:1.45rem;font-weight:900;color:#1a7a5e;"></div>
-                        <div style="font-size:.6rem;font-weight:700;color:#1a7a5e;letter-spacing:.5px;">ALL INCLUSIVE</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="padding:0 20px 20px;">
-                <button onclick="prosespembayaran()" style="width:100%;padding:14px;background:#1a4a2e;color:#fff;border:none;border-radius:12px;font-size:.92rem;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s,transform .15s,box-shadow .2s;box-shadow:0 4px 14px rgba(26,74,46,.3);margin-bottom:10px;"
-                    onmouseover="this.style.background='#143820';this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(26,74,46,.4)'"
-                    onmouseout="this.style.background='#1a4a2e';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 14px rgba(26,74,46,.3)'">
-                    Bayar Sekarang
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                </button>
-                <p style="font-size:.65rem;color:#9ca3af;text-align:center;margin:0;line-height:1.5;">
-                    Dengan menekan tombol di atas, Anda menyetujui
-                    <a href="#" style="color:#1a7a5e;font-weight:600;text-decoration:underline;">Syarat & Ketentuan</a> yang berlaku di J-TRIP.
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <p style="font-size:.68rem;font-weight:800;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin:0 0 5px;">
+                    Jumlah Tiket
                 </p>
+                <p id="payJumlahLeft" style="font-size:.9rem;font-weight:800;color:#111827;margin:0;"></p>
+            </div>
+
+            <div style="width:38px;height:38px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#1a7a5e" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 010 7.75"/>
+                </svg>
             </div>
         </div>
     </div>
+
+    <div style="padding:20px;border-radius:16px;background:#f0fdf4;border:1.5px solid #bbf7d0;margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+            <span id="payLabelEntryLeft" style="font-size:.85rem;color:#374151;font-weight:600;">
+                Standard Entry
+            </span>
+            <span id="paySubtotalLeft" style="font-size:.85rem;color:#111827;font-weight:800;"></span>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+            <span style="font-size:.85rem;color:#374151;font-weight:600;">
+                Biaya Layanan
+            </span>
+            <span style="font-size:.85rem;color:#111827;font-weight:800;">
+                Rp 0
+            </span>
+        </div>
+
+        <div style="height:1px;background:#bbf7d0;margin:14px 0;"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+            <span style="font-size:.95rem;color:#111827;font-weight:900;">
+                Total Pembayaran
+            </span>
+
+            <div style="text-align:right;">
+                <div id="payTotalLeft" style="font-size:1.65rem;font-weight:900;color:#1a7a5e;line-height:1;"></div>
+                <div style="font-size:.62rem;font-weight:800;color:#1a7a5e;letter-spacing:.6px;margin-top:5px;">
+                    VIA MIDTRANS
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display:flex;gap:13px;align-items:flex-start;padding:14px 18px;background:#fff;border-radius:12px;border:1px solid #e5e7eb;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#1a7a5e" stroke-width="2" style="flex-shrink:0;margin-top:1px;">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <div>
+            <p style="font-size:.8rem;font-weight:800;color:#1a4a2e;margin:0 0 3px;">
+                Pembayaran Aman
+            </p>
+            <p style="font-size:.72rem;color:#6b7280;margin:0;line-height:1.5;">
+                Metode pembayaran akan dipilih langsung melalui popup Midtrans.
+            </p>
+        </div>
+    </div>
+</div>
+
+        {{-- KOLOM KANAN: GAMBAR DAN TOMBOL BAYAR --}}
+<div style="width:320px;flex-shrink:0;display:flex;flex-direction:column;">
+    <div style="position:relative;height:220px;background:#c8e0d8;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+    <img id="payFotoDestinasi" src="" alt="" style="width:100%;height:100%;object-fit:contain;display:block;"
+         onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80'">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.65) 0%,transparent 100%);padding:22px 18px 14px;">
+            <p style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.7);margin:0 0 2px;letter-spacing:.8px;text-transform:uppercase;">Destinasi Pilihan</p>
+            <p id="payNamaDestinasi" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;"></p>
+        </div>
+    </div>
+
+    <div style="padding:20px;margin-top:auto;">
+        <button onclick="prosesPembayaranMidtrans()" style="width:100%;padding:14px;background:#1a4a2e;color:#fff;border:none;border-radius:12px;font-size:.92rem;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s,transform .15s,box-shadow .2s;box-shadow:0 4px 14px rgba(26,74,46,.3);margin-bottom:10px;"
+            onmouseover="this.style.background='#143820';this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(26,74,46,.4)'"
+            onmouseout="this.style.background='#1a4a2e';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 14px rgba(26,74,46,.3)'">
+            Bayar Sekarang
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+        </button>
+
+        <p style="font-size:.65rem;color:#9ca3af;text-align:center;margin:0;line-height:1.5;">
+            Dengan menekan tombol di atas, Anda akan diarahkan ke pembayaran Midtrans.
+        </p>
+    </div>
+</div>
+</div>
 </div>
 
 {{-- ===== PAYMENT STEPS MODAL ===== --}}
@@ -988,32 +955,80 @@ const paymentSteps = {
     }
 };
 
-let payState = { namaDestinasi:'', foto:'', tanggal:'', qty:2, harga:0, metode:'' };
+let payState = {
+    idWisata: '',
+    namaDestinasi: '',
+    foto: '',
+    tanggal: '',
+    qty: 2,
+    harga: 0,
+    metode: ''
+};
 
 function openPayment(data) {
-    payState = { namaDestinasi:data.namaDestinasi, foto:data.foto, tanggal:data.tanggal, qty:data.qty, harga:data.harga, metode:'' };
+    payState = {
+        idWisata: data.idWisata,
+        namaDestinasi: data.namaDestinasi,
+        foto: data.foto,
+        tanggal: data.tanggal,
+        qty: data.qty,
+        harga: data.harga,
+        metode: ''
+    };
 
     const tgl = new Date(data.tanggal + 'T00:00:00');
-    const bulanIndo = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const bulanIndo = [
+        'Januari','Februari','Maret','April','Mei','Juni',
+        'Juli','Agustus','September','Oktober','November','Desember'
+    ];
     const tglFormatted = `${tgl.getDate()} ${bulanIndo[tgl.getMonth()]} ${tgl.getFullYear()}`;
 
-    document.getElementById('payNamaDestinasi').textContent = data.namaDestinasi;
-    document.getElementById('payFotoDestinasi').src = data.foto;
-    document.getElementById('payTanggal').textContent = tglFormatted;
-
     const subtotal = data.harga * data.qty;
-    document.getElementById('payLabelEntry').textContent = `Standard Entry (x${data.qty})`;
-    document.getElementById('paySubtotal').textContent = data.harga === 0 ? 'Gratis' : 'Rp ' + subtotal.toLocaleString('id-ID');
-    document.getElementById('payTotal').textContent = data.harga === 0 ? 'Gratis' : 'Rp ' + subtotal.toLocaleString('id-ID');
+    const subtotalText = data.harga === 0
+        ? 'Gratis'
+        : 'Rp ' + subtotal.toLocaleString('id-ID');
 
-    resetPaymentOptions();
-    showAccordion(null);
+    // Helper supaya tidak error kalau ada elemen yang sudah dihapus
+    const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    };
+
+    const setSrc = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.src = value;
+    };
+
+    // Bagian kanan: gambar destinasi
+    setText('payNamaDestinasi', data.namaDestinasi);
+    setSrc('payFotoDestinasi', data.foto);
+
+    // Bagian kiri baru: ringkasan harga
+    setText('payNamaDestinasiLeft', data.namaDestinasi);
+    setText('payTanggalLeft', tglFormatted);
+    setText('payJumlahLeft', data.qty + ' orang');
+    setText('payLabelEntryLeft', `Standard Entry (x${data.qty})`);
+    setText('paySubtotalLeft', subtotalText);
+    setText('payTotalLeft', subtotalText);
+
+    // Bagian lama, kalau masih ada tidak masalah
+    setText('payTanggal', tglFormatted);
+    setText('payLabelEntry', `Standard Entry (x${data.qty})`);
+    setText('paySubtotal', subtotalText);
+    setText('payTotal', subtotalText);
 
     const overlay = document.getElementById('paymentOverlay');
     const modal = document.getElementById('paymentModal');
+
+    if (!overlay || !modal) {
+        alert('Modal pembayaran tidak ditemukan.');
+        return;
+    }
+
     overlay.style.display = 'block';
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
+
     requestAnimationFrame(() => requestAnimationFrame(() => {
         modal.style.opacity = '1';
         modal.style.transform = 'translate(-50%,-50%) scale(1)';
@@ -1097,6 +1112,61 @@ function prosespembayaran() {
         stepsModal.style.opacity = '1';
         stepsModal.style.transform = 'translate(-50%,-50%) scale(1)';
     }));
+}
+
+function prosesPembayaranMidtrans() {
+    if (!payState.idWisata) {
+        alert('Data wisata tidak ditemukan.');
+        return;
+    }
+
+    if (!payState.tanggal) {
+        alert('Tanggal kunjungan belum dipilih.');
+        return;
+    }
+
+    fetch("{{ route('midtrans.checkout') }}", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id_wisata: payState.idWisata,
+            tanggal_kunjungan: payState.tanggal,
+            jumlah_pengunjung: payState.qty,
+            metode_pembayaran: 'Midtrans Snap'
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (!result.success) {
+            alert(result.message || 'Gagal membuat pembayaran.');
+            return;
+        }
+
+        snap.pay(result.snap_token, {
+            onSuccess: function(midtransResult) {
+                alert('Pembayaran berhasil!');
+                window.location.href = "{{ url('/wisata') }}";
+            },
+            onPending: function(midtransResult) {
+                alert('Pembayaran masih pending. Silakan selesaikan pembayaran.');
+                window.location.href = "{{ url('/wisata') }}";
+            },
+            onError: function(midtransResult) {
+                alert('Pembayaran gagal.');
+            },
+            onClose: function() {
+                alert('Popup pembayaran ditutup sebelum selesai.');
+            }
+        });
+    })
+    .catch(error => {
+        console.error(error);
+        alert('Terjadi kesalahan saat memproses pembayaran.');
+    });
 }
 
 function closeSteps() {

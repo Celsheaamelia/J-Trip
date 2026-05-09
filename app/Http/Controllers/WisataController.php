@@ -45,6 +45,7 @@ class WisataController extends Controller
     {
         $request->validate([
             'name' => 'required',
+            'kategori' => 'required',
             'description' => 'required',
             'price' => 'required|numeric',
             'kuota_harian' => 'required|integer',
@@ -61,6 +62,7 @@ class WisataController extends Controller
         $wisata = Wisata::create([
             'id_wisata' => $idWisata,
             'name' => $request->name,
+            'kategori' => $request->kategori,
             'description' => $request->description,
             'price' => $request->price,
             'kuota_harian' => $request->kuota_harian,
