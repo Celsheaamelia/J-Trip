@@ -87,7 +87,7 @@
         @media(max-width:900px){.wg{grid-template-columns:repeat(2,1fr)}.ph,.sf-bar,.ww{padding-left:20px;padding-right:20px}.navbar{padding:0 20px}}
         @media(max-width:580px){.wg{grid-template-columns:1fr}.nav-links{display:none}}
     </style>
-    <script 
+    <script
     src="https://app.sandbox.midtrans.com/snap/snap.js"
     data-client-key="{{ config('services.midtrans.client_key') }}">
 </script>
@@ -125,7 +125,7 @@
     <div class="ftabs" id="ftabs">
         <button class="ft on" data-k="Semua">Semua</button>
         <button class="ft" data-k="Pantai">Pantai</button>
-        <button class="ft" data-k="Taman">Taman</button>
+        <button class="ft" data-k="Bukit">Bukit</button>
         <button class="ft" data-k="Kebun">Kebun</button>
         <button class="ft" data-k="Air Terjun">Air Terjun</button>
     </div>
@@ -147,7 +147,7 @@
         return [
             'id' => $item->id_wisata,
             'nama' => $item->name,
-            'kategori' => 'Wisata',
+            'kategori' => $item->kategori ?? 'Wisata',
             'deskripsi' => $item->description,
             'harga' => (int) $item->price,
             'rating' => 4.8,
@@ -168,7 +168,14 @@ let page = 1, kat = 'Semua', q = '';
 
 function render() {
     const grid = document.getElementById('wgrid');
-    let data = DATA.filter(w => (kat==='Semua'||w.kategori===kat) && w.nama.toLowerCase().includes(q.toLowerCase()));
+    let data = DATA.filter(w => {
+    const kategori = (w.kategori || '').trim().toLowerCase();
+    const filter = kat.trim().toLowerCase();
+    const nama = (w.nama || '').toLowerCase();
+
+    return (filter === 'semua' || kategori === filter) &&
+           nama.includes(q.toLowerCase());
+});
     const total = Math.max(1, Math.ceil(data.length/PER));
     if (page > total) page = total;
     const slice = data.slice((page-1)*PER, page*PER);
@@ -948,7 +955,7 @@ const paymentSteps = {
     }
 };
 
-let payState = { 
+let payState = {
     idWisata: '',
     namaDestinasi: '',
     foto: '',

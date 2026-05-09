@@ -12,22 +12,22 @@ class TiketController extends Controller
 {
     public function index(Request $request)
     {
-        $periode = $request->periode ?? 'harian';
+       $periode = $request->periode ?? 'semua';
         $search = $request->search;
 
         $query = Tiket::with(['user', 'wisata', 'detailTiket']);
 
-        if ($periode == 'harian') {
-            $query->whereDate('dibuat_pada', Carbon::today());
-        } elseif ($periode == 'mingguan') {
-            $query->whereBetween('dibuat_pada', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ]);
-        } elseif ($periode == 'bulanan') {
-            $query->whereMonth('dibuat_pada', Carbon::now()->month)
-                  ->whereYear('dibuat_pada', Carbon::now()->year);
-        }
+       if ($periode == 'harian') {
+    $query->whereDate('dibuat_pada', Carbon::today());
+} elseif ($periode == 'mingguan') {
+    $query->whereBetween('dibuat_pada', [
+        Carbon::now()->startOfWeek(),
+        Carbon::now()->endOfWeek()
+    ]);
+} elseif ($periode == 'bulanan') {
+    $query->whereMonth('dibuat_pada', Carbon::now()->month)
+          ->whereYear('dibuat_pada', Carbon::now()->year);
+}
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -42,7 +42,9 @@ class TiketController extends Controller
             });
         }
 
-        $tickets = $query->latest('dibuat_pada')->paginate(10);
+        $tickets = $query->latest('dibuat_pada')
+    ->paginate(10)
+    ->appends($request->query());
 
         $baseQuery = Tiket::query();
 

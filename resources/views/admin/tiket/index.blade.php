@@ -273,6 +273,27 @@
         color: #fff;
     }
 
+    .pagination {
+    margin: 0;
+    gap: 6px;
+}
+
+.pagination .page-item .page-link {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+.pagination svg {
+    width: 14px !important;
+    height: 14px !important;
+}
+
     @media (max-width: 768px) {
         .page-title {
             font-size: 30px;
@@ -301,11 +322,19 @@
             </p>
         </div>
 
-        <div class="d-flex gap-2 mt-3 mt-md-0">
-            <button class="btn period-btn active">Harian</button>
-            <button class="btn period-btn">Mingguan</button>
-            <button class="btn period-btn">Bulanan</button>
-        </div>
+            <div class="d-flex gap-2 mt-3 mt-md-0">
+                <a href="/admin/tiket?periode=semua"
+                class="btn period-btn {{ $periode == 'semua' ? 'active' : '' }}">Semua</a>
+
+                <a href="/admin/tiket?periode=harian"
+                class="btn period-btn {{ $periode == 'harian' ? 'active' : '' }}">Harian</a>
+
+                <a href="/admin/tiket?periode=mingguan"
+                class="btn period-btn {{ $periode == 'mingguan' ? 'active' : '' }}">Mingguan</a>
+
+                <a href="/admin/tiket?periode=bulanan"
+                class="btn period-btn {{ $periode == 'bulanan' ? 'active' : '' }}">Bulanan</a>
+            </div>
     </div>
 
     <div class="mb-4" style="max-width: 340px;">
@@ -433,7 +462,7 @@
 
            @if ($tickets->count() > 0)
             <div class="pagination-wrap d-flex align-items-center gap-2">
-                {{ $tickets->links() }}
+                {{ $tickets->links('pagination::bootstrap-5') }}
             </div>
             @endif
         </div>
