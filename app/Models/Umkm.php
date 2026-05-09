@@ -10,6 +10,9 @@ class Umkm extends Model
     protected $primaryKey = 'id_umkm';
     public $incrementing = false;
     protected $keyType = 'string';
+    const CREATED_AT = 'dibuat_pada';
+    const UPDATED_AT = 'diperbarui_pada';
+
 
     protected $fillable = [
         'id_umkm',

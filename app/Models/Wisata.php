@@ -17,6 +17,7 @@ class Wisata extends Model
     protected $fillable = [
         'id_wisata',
         'name',
+        'kategori',
         'description',
         'price',
         'kuota_harian',

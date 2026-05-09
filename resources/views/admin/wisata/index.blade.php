@@ -139,6 +139,17 @@
                     </div>
 
                     <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select name="kategori" class="form-control" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="Pantai">Pantai</option>
+                                <option value="Bukit">Bukit</option>
+                                <option value="Kebun">Kebun</option>
+                                <option value="Air Terjun">Air Terjun</option>
+                            </select>
+                        </div>
+
+                    <div class="mb-3">
                         <label class="form-label">Deskripsi</label>
                         <textarea name="description" class="form-control" rows="3" required></textarea>
                     </div>
