@@ -9,6 +9,7 @@ use App\Models\DetailTiket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -154,67 +155,132 @@ class MidtransController extends Controller
         ]);
     }
 
-    public function notification(Request $request)
-    {
-        $payload = $request->all();
+    public function success(Request $request)
+{
+    $request->validate([
+        'order_id' => 'required|string',
+        'payment_type' => 'nullable|string',
+    ]);
 
-        $orderId = $payload['order_id'] ?? null;
-        $statusCode = $payload['status_code'] ?? null;
-        $grossAmount = $payload['gross_amount'] ?? null;
-        $signatureKey = $payload['signature_key'] ?? null;
+    $transaksi = Transaksi::where('kode_pesanan', $request->order_id)->first();
 
-        $serverKey = config('services.midtrans.server_key');
-        $validSignature = hash('sha512', $orderId . $statusCode . $grossAmount . $serverKey);
-
-        if ($signatureKey !== $validSignature) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid signature',
-            ], 403);
-        }
-
-        $transactionStatus = $payload['transaction_status'] ?? null;
-        $fraudStatus = $payload['fraud_status'] ?? null;
-        $paymentType = $payload['payment_type'] ?? 'Midtrans';
-
-        $transaksi = Transaksi::where('kode_pesanan', $orderId)->first();
-
-        if (!$transaksi) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Transaksi tidak ditemukan',
-            ], 404);
-        }
-
-        if ($transactionStatus === 'capture') {
-            if ($fraudStatus === 'accept') {
-                $this->markAsPaid($transaksi, $paymentType);
-            }
-        } elseif ($transactionStatus === 'settlement') {
-            $this->markAsPaid($transaksi, $paymentType);
-        } elseif ($transactionStatus === 'pending') {
-            $transaksi->update([
-                'status_pembayaran' => 'pending',
-                'metode_pembayaran' => $paymentType,
-            ]);
-        } elseif (in_array($transactionStatus, ['deny', 'cancel', 'failure', 'expire'])) {
-            $transaksi->update([
-                'status_pembayaran' => 'failed',
-                'metode_pembayaran' => $paymentType,
-            ]);
-
-            if ($transaksi->tiket) {
-                $transaksi->tiket->update([
-                    'status' => 'pending',
-                ]);
-            }
-        }
-
+    if (!$transaksi) {
         return response()->json([
-            'success' => true,
-            'message' => 'Notification processed',
+            'success' => false,
+            'message' => 'Transaksi tidak ditemukan',
+        ], 404);
+    }
+
+    $transaksi->update([
+        'status_pembayaran' => 'paid',
+        'metode_pembayaran' => $request->payment_type ?? 'Midtrans',
+        'paid_at' => now(),
+    ]);
+
+    if ($transaksi->tiket) {
+        $transaksi->tiket->update([
+            'status' => 'paid',
         ]);
     }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Status pembayaran berhasil diupdate',
+    ]);
+}
+
+    public function notification(Request $request)
+{
+    Log::info('MIDTRANS NOTIFICATION MASUK', $request->all());
+
+    // Untuk test URL dari Midtrans / curl kosong.
+    // Kalau payload belum membawa order_id, endpoint tetap balas 200.
+    if (!$request->has('order_id')) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Notification endpoint is reachable',
+        ], 200);
+    }
+
+    $payload = $request->all();
+
+    $orderId = $payload['order_id'] ?? null;
+    $statusCode = $payload['status_code'] ?? null;
+    $grossAmount = $payload['gross_amount'] ?? null;
+    $signatureKey = $payload['signature_key'] ?? null;
+
+    $serverKey = config('services.midtrans.server_key');
+
+    $validSignature = hash(
+        'sha512',
+        $orderId . $statusCode . $grossAmount . $serverKey
+    );
+
+    if ($signatureKey !== $validSignature) {
+        Log::warning('MIDTRANS INVALID SIGNATURE', [
+            'order_id' => $orderId,
+            'signature_from_midtrans' => $signatureKey,
+            'signature_from_server' => $validSignature,
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid signature',
+        ], 403);
+    }
+
+    $transactionStatus = $payload['transaction_status'] ?? null;
+    $fraudStatus = $payload['fraud_status'] ?? null;
+    $paymentType = $payload['payment_type'] ?? 'Midtrans';
+
+    $transaksi = Transaksi::where('kode_pesanan', $orderId)->first();
+
+    if (!$transaksi) {
+        Log::warning('MIDTRANS TRANSAKSI TIDAK DITEMUKAN', [
+            'order_id' => $orderId,
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Transaksi tidak ditemukan',
+        ], 404);
+    }
+
+    if ($transactionStatus === 'capture') {
+        if ($fraudStatus === 'accept') {
+            $this->markAsPaid($transaksi, $paymentType);
+        }
+    } elseif ($transactionStatus === 'settlement') {
+        $this->markAsPaid($transaksi, $paymentType);
+    } elseif ($transactionStatus === 'pending') {
+        $transaksi->update([
+            'status_pembayaran' => 'pending',
+            'metode_pembayaran' => $paymentType,
+        ]);
+
+        if ($transaksi->tiket) {
+            $transaksi->tiket->update([
+                'status' => 'pending',
+            ]);
+        }
+    } elseif (in_array($transactionStatus, ['deny', 'cancel', 'failure', 'expire'])) {
+        $transaksi->update([
+            'status_pembayaran' => 'failed',
+            'metode_pembayaran' => $paymentType,
+        ]);
+
+        if ($transaksi->tiket) {
+            $transaksi->tiket->update([
+                'status' => 'pending',
+            ]);
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Notification processed',
+    ]);
+}
 
     private function markAsPaid(Transaksi $transaksi, $paymentType = null)
     {
