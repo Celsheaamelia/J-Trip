@@ -1,30 +1,55 @@
 <!DOCTYPE html>
     <html lang="id">
     <head>
+                <script 
+            src="https://app.sandbox.midtrans.com/snap/snap.js"
+            data-client-key="{{ config('services.midtrans.client_key') }}">
+        </script>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>J-TRIP - Jelajahi Wisata Terbaik di Jember</title>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-        <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+        <link rel="stylesheet" href="/css/landing.css?v=1">
     </head>
     <body>
 
         {{-- ===== NAVBAR ===== --}}
         <nav class="navbar" id="navbar">
-            <div class="nav-container">
-                <a href="#" class="nav-logo">J-TRIP</a>
-                <ul class="nav-menu">
-                <li><a href="#beranda" class="nav-link active">Beranda</a></li>
-                <li><a href="#destinasi" class="nav-link">Wisata</a></li>
-                <li><a href="#tentang" class="nav-link">Tentang</a></li>
-            </ul>
-                <div class="nav-auth">
+    <div class="nav-container">
+        <a href="{{ url('/') }}" class="nav-logo">J-TRIP</a>
+
+        <ul class="nav-menu">
+            <li><a href="#beranda" class="nav-link active">Beranda</a></li>
+            <li><a href="#destinasi" class="nav-link">Wisata</a></li>
+            <li><a href="#tentang" class="nav-link">Tentang</a></li>
+
+            @auth
+                <li>
+                    <a href="{{ route('riwayat.pesanan.index') }}" class="nav-link">
+                        Riwayat Pesanan
+                    </a>
+                </li>
+            @endauth
+        </ul>
+
+        <div class="nav-auth">
+            @guest
                 <a href="{{ url('/login') }}" class="btn-login">Login</a>
-                    <a href="{{ url('/register') }}" class="btn-register">Register</a>
-                </div>
-            </div>
-        </nav>
+                <a href="{{ url('/register') }}" class="btn-register">Register</a>
+            @endguest
+
+            @auth
+                <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="btn-register" style="border:none;cursor:pointer;">
+                        Logout
+                    </button>
+                </form>
+            @endauth
+        </div>
+    </div>
+</nav>
 
         {{-- ===== HERO SECTION ===== --}}
         <section class="hero" id="beranda">
@@ -214,7 +239,7 @@
             </div>
         </footer>
 
-        <script src="{{ asset('js/landing.js') }}"></script>
+        <script src="/js/landing.js?v=1"></script>
 
 {{-- ===== GALLERY MODAL ===== --}}
 <div id="galleryModal" style="
@@ -686,7 +711,8 @@ document.getElementById('galleryModal').addEventListener('click', function(e) {
     position:fixed;
     top:50%; left:50%;
     transform:translate(-50%, -50%) scale(0.94);
-    width:92%; max-width:920px;
+    width:92%;
+    max-width:940px;
     max-height:90vh;
     background:#fff;
     border-radius:20px;
@@ -705,7 +731,9 @@ document.getElementById('galleryModal').addEventListener('click', function(e) {
             </svg>
             Kembali
         </button>
+
         <span style="font-size:1.1rem;font-weight:900;color:#1a7a5e;letter-spacing:-.5px;">J-TRIP</span>
+
         <div style="display:flex;align-items:center;gap:6px;">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#6b7280" stroke-width="2">
                 <rect x="3" y="11" width="18" height="11" rx="2"/>
@@ -715,212 +743,151 @@ document.getElementById('galleryModal').addEventListener('click', function(e) {
         </div>
     </div>
 
-    <div style="display:flex; overflow-y:auto; max-height:calc(90vh - 52px);">
+    <div style="display:flex;overflow:hidden;min-height:520px;max-height:calc(90vh - 52px);">
 
-        {{-- KOLOM KIRI: METODE PEMBAYARAN --}}
-        <div style="flex:1; padding:28px 32px; border-right:1px solid #f3f4f6; min-width:0;">
-            <h1 style="font-size:1.9rem;font-weight:900;color:#1a4a2e;margin:0 0 4px;letter-spacing:-.5px;">Pembayaran</h1>
-            <p style="font-size:.8rem;color:#6b7280;margin:0 0 26px;">Ayo selesaikan pembayaranmu untuk segera menikmati liburan!</p>
+        {{-- KOLOM KIRI: RINGKASAN HARGA --}}
+        <div style="flex:1;padding:28px 32px;border-right:1px solid #f3f4f6;min-width:0;overflow-y:auto;">
+            <h1 style="font-size:1.9rem;font-weight:900;color:#1a4a2e;margin:0 0 4px;letter-spacing:-.5px;">
+                Ringkasan Pesanan
+            </h1>
 
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="1.8">
-                    <rect x="2" y="7" width="20" height="14" rx="2"/>
-                    <path d="M16 3H8L2 7h20l-6-4z"/>
-                </svg>
-                <span style="font-size:.95rem;font-weight:800;color:#111827;">Metode Pembayaran</span>
+            <p style="font-size:.8rem;color:#6b7280;margin:0 0 26px;line-height:1.6;">
+                Periksa kembali detail tiket sebelum melanjutkan pembayaran melalui Midtrans.
+            </p>
+
+            <div style="padding:18px;border:1.5px solid #e5e7eb;border-radius:14px;background:#fff;margin-bottom:18px;">
+                <p style="font-size:.68rem;font-weight:800;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin:0 0 8px;">
+                    Destinasi
+                </p>
+                <h3 id="payNamaDestinasiLeft" style="font-size:1.15rem;font-weight:900;color:#111827;margin:0;line-height:1.35;"></h3>
             </div>
 
-            {{-- VIRTUAL ACCOUNT --}}
-            <div style="border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:10px;overflow:hidden;">
-                <div onclick="toggleAccordion('va')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;background:#fff;transition:background .15s;"
-                    onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="1.8">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <path d="M3 9h18"/><path d="M9 21V9"/>
+            <div style="padding:18px;border:1.5px solid #e5e7eb;border-radius:14px;background:#fff;margin-bottom:18px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                    <div>
+                        <p style="font-size:.68rem;font-weight:800;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin:0 0 5px;">
+                            Tanggal Kunjungan
+                        </p>
+                        <p id="payTanggalLeft" style="font-size:.9rem;font-weight:800;color:#111827;margin:0;"></p>
+                    </div>
+
+                    <div style="width:38px;height:38px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#1a7a5e" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
                         </svg>
-                        <span style="font-size:.88rem;font-weight:600;color:#374151;">Virtual Account</span>
-                    </div>
-                    <svg id="vaChevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2" style="transition:transform .25s;">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-                <div id="vaContent" style="padding:6px 18px 18px;display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid #f3f4f6;background:#fff;">
-                    <div onclick="selectPayment(this, 'BCA VA')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                        <span style="font-size:.62rem;font-weight:800;color:#1a7a5e;letter-spacing:.3px;display:block;">BCA</span>
-                        <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">BCA VA</span>
-                    </div>
-                    <div onclick="selectPayment(this, 'BNI VA')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                        <span style="font-size:.62rem;font-weight:800;color:#e65c00;letter-spacing:.3px;display:block;">BNI</span>
-                        <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">BNI VA</span>
-                    </div>
-                    <div onclick="selectPayment(this, 'BRI VA')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                        <span style="font-size:.62rem;font-weight:800;color:#1655a2;letter-spacing:.3px;display:block;">BRI</span>
-                        <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">BRI VA</span>
-                    </div>
-                    <div onclick="selectPayment(this, 'Mandiri Bill')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                        <span style="font-size:.62rem;font-weight:800;color:#f5a623;letter-spacing:.3px;display:block;">Mandiri</span>
-                        <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">Mandiri Bill</span>
                     </div>
                 </div>
-            </div>
 
-            {{-- E-WALLET & QRIS --}}
-            <div style="border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:10px;overflow:hidden;">
-                <div onclick="toggleAccordion('ewallet')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;background:#fff;transition:background .15s;"
-                    onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="1.8">
-                            <rect x="2" y="5" width="20" height="14" rx="2"/>
-                            <path d="M16 13a1 1 0 100-2 1 1 0 000 2z" fill="#374151"/>
+                <div style="height:1px;background:#f3f4f6;margin:14px 0;"></div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <p style="font-size:.68rem;font-weight:800;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin:0 0 5px;">
+                            Jumlah Tiket
+                        </p>
+                        <p id="payJumlahLeft" style="font-size:.9rem;font-weight:800;color:#111827;margin:0;"></p>
+                    </div>
+
+                    <div style="width:38px;height:38px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#1a7a5e" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 010 7.75"/>
                         </svg>
-                        <span style="font-size:.88rem;font-weight:600;color:#374151;">E-Wallet & QRIS</span>
                     </div>
-                    <svg id="ewalletChevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2" style="transition:transform .25s;transform:rotate(-90deg);">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                    </svg>
                 </div>
-                <div id="ewalletContent" style="display:none;padding:14px 18px;border-top:1px solid #f3f4f6;">
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <div onclick="selectPayment(this, 'GoPay')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                            <span style="font-size:.62rem;font-weight:800;color:#00aed6;display:block;">GoPay</span>
-                            <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">GoPay</span>
-                        </div>
-                        <div onclick="selectPayment(this, 'OVO')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                            <span style="font-size:.62rem;font-weight:800;color:#4c3494;display:block;">OVO</span>
-                            <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">OVO</span>
-                        </div>
-                        <div onclick="selectPayment(this, 'QRIS')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                            <span style="font-size:.62rem;font-weight:800;color:#e11d48;display:block;">QRIS</span>
-                            <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">Scan QR</span>
+            </div>
+            
+
+            <div style="padding:20px;border-radius:16px;background:#f0fdf4;border:1.5px solid #bbf7d0;margin-bottom:18px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                    <span id="payLabelEntryLeft" style="font-size:.85rem;color:#374151;font-weight:600;">
+                        Standard Entry
+                    </span>
+                    <span id="paySubtotalLeft" style="font-size:.85rem;color:#111827;font-weight:800;"></span>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                    <span style="font-size:.85rem;color:#374151;font-weight:600;">
+                        Biaya Layanan
+                    </span>
+                    <span style="font-size:.85rem;color:#111827;font-weight:800;">
+                        Rp 0
+                    </span>
+                </div>
+
+                <div style="height:1px;background:#bbf7d0;margin:14px 0;"></div>
+
+                <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+                    <span style="font-size:.95rem;color:#111827;font-weight:900;">
+                        Total Pembayaran
+                    </span>
+
+                    <div style="text-align:right;">
+                        <div id="payTotalLeft" style="font-size:1.65rem;font-weight:900;color:#1a7a5e;line-height:1;"></div>
+                        <div style="font-size:.62rem;font-weight:800;color:#1a7a5e;letter-spacing:.6px;margin-top:5px;">
+                            VIA MIDTRANS
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- CREDIT / DEBIT CARD --}}
-            <div style="border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:22px;overflow:hidden;">
-                <div onclick="toggleAccordion('card')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;background:#fff;transition:background .15s;"
-                    onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="1.8">
-                            <rect x="2" y="5" width="20" height="14" rx="2"/>
-                            <path d="M2 10h20"/>
-                        </svg>
-                        <span style="font-size:.88rem;font-weight:600;color:#374151;">Credit / Debit Card</span>
-                    </div>
-                    <svg id="cardChevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2" style="transition:transform .25s;transform:rotate(-90deg);">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-                <div id="cardContent" style="display:none;padding:14px 18px;border-top:1px solid #f3f4f6;">
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <div onclick="selectPayment(this, 'Visa')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                            <span style="font-size:.62rem;font-weight:900;color:#1a1f71;display:block;letter-spacing:1px;">VISA</span>
-                            <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">Visa</span>
-                        </div>
-                        <div onclick="selectPayment(this, 'Mastercard')" class="pay-option" style="padding:10px 14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;min-width:74px;transition:all .2s;">
-                            <span style="font-size:.62rem;font-weight:800;color:#eb001b;display:block;">MC</span>
-                            <span style="font-size:.7rem;color:#6b7280;margin-top:2px;display:block;">Mastercard</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:flex;gap:13px;align-items:flex-start;padding:14px 18px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">
+            <div style="display:flex;gap:13px;align-items:flex-start;padding:14px 18px;background:#fff;border-radius:12px;border:1px solid #e5e7eb;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#1a7a5e" stroke-width="2" style="flex-shrink:0;margin-top:1px;">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                 </svg>
                 <div>
-                    <p style="font-size:.8rem;font-weight:700;color:#1a4a2e;margin:0 0 3px;">Secure Transaction</p>
-                    <p style="font-size:.72rem;color:#6b7280;margin:0;line-height:1.5;">Your payment information is encrypted and processed securely. We never store your card details on our servers.</p>
+                    <p style="font-size:.8rem;font-weight:800;color:#1a4a2e;margin:0 0 3px;">
+                        Pembayaran Aman
+                    </p>
+                    <p style="font-size:.72rem;color:#6b7280;margin:0;line-height:1.5;">
+                        Metode pembayaran akan dipilih langsung melalui popup Midtrans.
+                    </p>
                 </div>
             </div>
         </div>
 
-        {{-- KOLOM KANAN: RINGKASAN --}}
-        <div style="width:320px;flex-shrink:0;display:flex;flex-direction:column;">
-            <div style="position:relative;height:160px;background:#c8e0d8;overflow:hidden;">
-                <img id="payFotoDestinasi" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">
-                <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.65) 0%,transparent 100%);padding:22px 18px 14px;">
-                    <p style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.7);margin:0 0 2px;letter-spacing:.8px;text-transform:uppercase;">Destinasi Pilihan</p>
-                    <p id="payNamaDestinasi" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;"></p>
-                </div>
+        {{-- KOLOM KANAN: VISUAL FULL --}}
+        <div style="width:340px;flex-shrink:0;position:relative;display:flex;flex-direction:column;">
+            <div style="position:absolute;inset:0;overflow:hidden;">
+                <img id="payFotoDestinasi"
+                     src=""
+                     alt=""
+                     style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;"
+                     onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80'">
             </div>
 
-            <div style="padding:20px 20px 0;flex:1;">
-                <div style="display:flex;gap:20px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #f3f4f6;">
-                    <div>
-                        <p style="font-size:.6rem;font-weight:700;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin:0 0 5px;">Tanggal</p>
-                        <div style="display:flex;align-items:center;gap:5px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2"/>
-                                <line x1="16" y1="2" x2="16" y2="6"/>
-                                <line x1="8" y1="2" x2="8" y2="6"/>
-                                <line x1="3" y1="10" x2="21" y2="10"/>
-                            </svg>
-                            <span id="payTanggal" style="font-size:.82rem;font-weight:700;color:#111827;"></span>
-                        </div>
-                    </div>
-                    <div>
-                        <p style="font-size:.6rem;font-weight:700;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin:0 0 5px;">Waktu</p>
-                        <div style="display:flex;align-items:center;gap:5px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M12 6v6l4 2"/>
-                            </svg>
-                            <span style="font-size:.82rem;font-weight:700;color:#111827;">08:00 AM</span>
-                        </div>
-                    </div>
+            <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.78) 0%, rgba(0,0,0,.25) 48%, rgba(0,0,0,.08) 100%);"></div>
+
+            <div style="position:relative;z-index:2;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:24px;">
+                <div>
+                    <p style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.8);margin:0 0 6px;letter-spacing:.8px;text-transform:uppercase;">
+                        Destinasi Pilihan
+                    </p>
+                    <h3 id="payNamaDestinasi" style="font-size:1.25rem;font-weight:900;color:#fff;margin:0;line-height:1.4;"></h3>
                 </div>
 
-                <div style="margin-bottom:18px;">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-                        <span id="payLabelEntry" style="font-size:.82rem;color:#374151;">Standard Entry (x2)</span>
-                        <span id="paySubtotal" style="font-size:.82rem;font-weight:700;color:#111827;"></span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-                        <span style="font-size:.82rem;color:#374151;">Local Guide Svc</span>
-                        <span style="font-size:.82rem;font-weight:700;color:#111827;">Rp 0</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="font-size:.75rem;color:#9ca3af;">Service Fee & Tax</span>
-                        <span style="font-size:.75rem;color:#9ca3af;">Rp 0</span>
-                    </div>
-                </div>
+                <div style="background:rgba(255,255,255,.13);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:18px;">
+                    <p style="font-size:.72rem;color:rgba(255,255,255,.85);margin:0 0 14px;line-height:1.5;">
+                        Lanjutkan pembayaran untuk menyelesaikan pemesanan tiket wisata Anda.
+                    </p>
 
-                <div style="border-top:1.5px solid #f3f4f6;margin-bottom:16px;"></div>
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-                    <span style="font-size:.88rem;font-weight:700;color:#111827;">Total Pembayaran</span>
-                    <div style="text-align:right;line-height:1.1;">
-                        <div id="payTotal" style="font-size:1.45rem;font-weight:900;color:#1a7a5e;"></div>
-                        <div style="font-size:.6rem;font-weight:700;color:#1a7a5e;letter-spacing:.5px;">ALL INCLUSIVE</div>
-                    </div>
-                </div>
-            </div>
+                    <button onclick="prosesPembayaranMidtrans()"
+                        style="width:100%;padding:14px;background:#ffffff;color:#1a4a2e;border:none;border-radius:12px;font-size:.95rem;font-weight:900;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;">
+                        Bayar Sekarang
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#1a4a2e" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
 
-            <div style="padding:0 20px 20px;">
-                <button onclick="prosespembayaran()" style="
-                    width:100%;padding:14px;
-                    background:#1a4a2e;color:#fff;
-                    border:none;border-radius:12px;
-                    font-size:.92rem;font-weight:800;
-                    font-family:inherit;cursor:pointer;
-                    display:flex;align-items:center;justify-content:center;gap:8px;
-                    transition:background .2s,transform .15s,box-shadow .2s;
-                    box-shadow:0 4px 14px rgba(26,74,46,.3);
-                    margin-bottom:10px;
-                " onmouseover="this.style.background='#143820';this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(26,74,46,.4)'"
-                   onmouseout="this.style.background='#1a4a2e';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 14px rgba(26,74,46,.3)'">
-                    Bayar Sekarang
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                </button>
-                <p style="font-size:.65rem;color:#9ca3af;text-align:center;margin:0;line-height:1.5;">
-                    Dengan menekan tombol di atas, Anda menyetujui
-                    <a href="#" style="color:#1a7a5e;font-weight:600;text-decoration:underline;">Syarat & Ketentuan</a> yang berlaku di J-TRIP.
-                </p>
+                    <p style="font-size:.65rem;color:rgba(255,255,255,.75);text-align:center;margin:10px 0 0;line-height:1.5;">
+                        Anda akan diarahkan ke popup pembayaran Midtrans.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
@@ -1038,281 +1005,192 @@ document.getElementById('galleryModal').addEventListener('click', function(e) {
 /* ============================================================
    DATA LANGKAH PEMBAYARAN
 ============================================================ */
-    const paymentSteps = {
-    'BCA VA': {
-        title: 'BCA Virtual Account',
-        color: '#1a7a5e', bg: '#e6f4ef',
-        icon: '🏦',
-        steps: [
-            { title: 'Salin Nomor Virtual Account', desc: 'Gunakan nomor VA berikut untuk pembayaran:<br><strong>8808 1234 5678 9012</strong>' },
-
-            { title: 'Metode 1: m-BCA (Mobile Banking)', desc: 'Login ke aplikasi <strong>m-BCA</strong> → pilih <strong>m-Transfer</strong> → <strong>BCA Virtual Account</strong>.' },
-            { title: 'Input Nomor VA', desc: 'Masukkan nomor VA di atas, lalu tekan <strong>OK</strong>.' },
-            { title: 'Konfirmasi Pembayaran', desc: 'Pastikan nama <strong>J-TRIP</strong> & nominal benar → masukkan PIN → <strong>Bayar</strong>.' },
-
-            { title: 'Metode 2: ATM BCA', desc: 'Masukkan kartu ATM → PIN → pilih <strong>Transaksi Lainnya</strong> → <strong>Transfer</strong> → <strong>BCA Virtual Account</strong>.' },
-            { title: 'Masukkan Nomor VA', desc: 'Ketik nomor VA → tekan <strong>Benar</strong>.' },
-            { title: 'Selesaikan Pembayaran', desc: 'Cek detail → tekan <strong>Ya</strong> → simpan struk sebagai bukti.' },
-
-            { title: 'Pembayaran Berhasil', desc: 'Tiket akan dikirim otomatis ke email kamu setelah pembayaran berhasil.' }
-        ],
-        note: '⏰ Batas waktu pembayaran: <strong>24 jam</strong>. Pesanan otomatis dibatalkan jika belum dibayar.'
-    },
-
-    'BNI VA': {
-        title: 'BNI Virtual Account',
-        color: '#e65c00', bg: '#fff4ed',
-        icon: '🏦',
-        steps: [
-            { title: 'Salin Nomor Virtual Account', desc: 'Nomor VA:<br><strong>9880 8765 4321 000</strong>' },
-
-            { title: 'm-Banking BNI', desc: 'Login ke <strong>BNI Mobile Banking</strong> → pilih <strong>Transfer</strong> → <strong>Virtual Account Billing</strong>.' },
-            { title: 'Masukkan Nomor VA', desc: 'Input nomor VA → tekan <strong>Lanjut</strong>.' },
-            { title: 'Konfirmasi', desc: 'Cek nama <strong>J-TRIP</strong> → masukkan PIN → <strong>Bayar</strong>.' },
-
-            { title: 'ATM BNI', desc: 'Masukkan kartu → PIN → pilih <strong>Menu Lain</strong> → <strong>Transfer</strong> → <strong>Virtual Account Billing</strong>.' },
-            { title: 'Input VA', desc: 'Masukkan nomor VA → tekan benar → lanjutkan pembayaran.' },
-
-            { title: 'Selesai', desc: 'Struk keluar / notifikasi muncul. Tiket dikirim otomatis ke email.' }
-        ],
-        note: '⏰ Berlaku 24 jam setelah checkout.'
-    },
-
-    'BRI VA': {
-        title: 'BRI Virtual Account',
-        color: '#1655a2', bg: '#eff4ff',
-        icon: '🏦',
-        steps: [
-            { title: 'Nomor BRIVA', desc: 'Gunakan nomor berikut:<br><strong>26215 0000 9876 543</strong>' },
-
-            { title: 'BRImo (Mobile Banking)', desc: 'Login → pilih <strong>Pembayaran</strong> → <strong>BRIVA</strong>.' },
-            { title: 'Masukkan Nomor', desc: 'Input nomor BRIVA → tekan lanjut.' },
-            { title: 'Konfirmasi', desc: 'Cek detail → masukkan PIN → bayar.' },
-
-            { title: 'ATM BRI', desc: 'Masukkan kartu → PIN → pilih <strong>Pembayaran</strong> → <strong>BRIVA</strong>.' },
-            { title: 'Input BRIVA', desc: 'Masukkan nomor → konfirmasi → simpan struk.' },
-
-            { title: 'Berhasil', desc: 'Tiket otomatis dikirim ke email kamu.' }
-        ],
-        note: '⏰ Maksimal pembayaran 24 jam.'
-    },
-
-    'Mandiri Bill': {
-        title: 'Mandiri Bill Payment',
-        color: '#f5a623', bg: '#fffbeb',
-        icon: '🏦',
-        steps: [
-            { title: 'Kode Pembayaran', desc: 'Gunakan kode berikut:<br><strong>70012 8899 7766</strong>' },
-
-            { title: 'Livin by Mandiri', desc: 'Login → pilih <strong>Bayar</strong> → <strong>Multipayment</strong>.' },
-            { title: 'Pilih Penyedia', desc: 'Cari & pilih <strong>J-TRIP</strong>.' },
-            { title: 'Input Kode', desc: 'Masukkan kode bayar → lanjut.' },
-            { title: 'Konfirmasi', desc: 'Cek detail → masukkan PIN → bayar.' },
-
-            { title: 'ATM Mandiri', desc: 'Masukkan kartu → PIN → pilih <strong>Bayar/Beli</strong> → <strong>Multipayment</strong>.' },
-            { title: 'Masukkan Kode', desc: 'Input kode → konfirmasi → selesai.' },
-
-            { title: 'Sukses', desc: 'Tiket dikirim otomatis ke email.' }
-        ],
-        note: '⏰ Pembayaran berlaku 24 jam.'
-    },
-        'GoPay': {
-            title: 'GoPay',
-            color: '#00aed6', bg: '#e8f8fd',
-            icon: '💚',
-            steps: [
-                { title: 'Buka Aplikasi Gojek', desc: 'Pastikan saldo GoPay kamu mencukupi. Buka aplikasi Gojek di HP.' },
-                { title: 'Pilih GoPay di J-TRIP', desc: 'Di halaman pembayaran J-TRIP, pilih <strong>GoPay</strong> sebagai metode.' },
-                { title: 'Redirect ke GoPay', desc: 'Kamu akan diarahkan ke halaman konfirmasi GoPay secara otomatis.' },
-                { title: 'Cek Detail Pembayaran', desc: 'Pastikan nama merchant <strong>J-TRIP</strong> dan nominal sudah benar.' },
-                { title: 'Masukkan PIN GoPay', desc: 'Input 6 digit PIN GoPay kamu untuk mengotorisasi pembayaran.' },
-                { title: 'Pembayaran Berhasil', desc: 'Saldo GoPay terpotong dan tiket langsung dikirim ke email kamu.' }
-            ],
-            note: '✅ Pembayaran GoPay bersifat <strong>instan</strong>, tiket terbit dalam hitungan detik.'
-        },
-        'OVO': {
-            title: 'OVO',
-            color: '#4c3494', bg: '#f5f0ff',
-            icon: '💜',
-            steps: [
-                { title: 'Pastikan Saldo OVO Cukup', desc: 'Buka aplikasi OVO dan cek saldo OVO Cash / OVO Points kamu.' },
-                { title: 'Pilih OVO di Halaman Pembayaran', desc: 'Di J-TRIP, pilih <strong>OVO</strong> sebagai metode pembayaran.' },
-                { title: 'Masukkan Nomor HP OVO', desc: 'Ketikkan nomor HP yang terdaftar di akun OVO kamu.' },
-                { title: 'Terima Notifikasi Push', desc: 'Buka notifikasi dari aplikasi OVO di HP kamu.' },
-                { title: 'Konfirmasi di Aplikasi OVO', desc: 'Tap <strong>Bayar</strong> di aplikasi OVO dan masukkan PIN OVO.' },
-                { title: 'Transaksi Selesai', desc: 'Saldo OVO terpotong. Tiket J-TRIP langsung dikirim ke email.' }
-            ],
-            note: '✅ Pembayaran OVO bersifat <strong>instan</strong>, pastikan notifikasi OVO aktif.'
-        },
-        'QRIS': {
-            title: 'QRIS (Scan QR Code)',
-            color: '#e11d48', bg: '#fff1f2',
-            icon: '📱',
-            steps: [
-                { title: 'Pilih QRIS di J-TRIP', desc: 'Pilih metode <strong>QRIS</strong>. QR Code akan tampil di layar.' },
-                { title: 'Buka Aplikasi Dompet Digital / m-Banking', desc: 'Buka GoPay, OVO, Dana, ShopeePay, m-BCA, BRImo, atau aplikasi lain yang mendukung QRIS.' },
-                { title: 'Pilih Fitur Scan QR', desc: 'Tap ikon kamera / scan QR yang tersedia di aplikasi pilihan kamu.' },
-                { title: 'Scan QR Code J-TRIP', desc: 'Arahkan kamera ke QR Code yang tampil. Pastikan tertera nama <strong>J-TRIP</strong>.' },
-                { title: 'Cek & Konfirmasi Nominal', desc: 'Nominal otomatis terisi. Periksa, lalu masukkan PIN untuk konfirmasi.' },
-                { title: 'Bukti Pembayaran Tersimpan', desc: 'Transaksi berhasil. Tiket dikirim ke email dalam 1–2 menit.' }
-            ],
-            note: '📲 QRIS dapat digunakan oleh semua aplikasi dompet digital & m-banking berlogo QRIS.'
-        },
-        'Visa': {
-            title: 'Kartu Visa',
-            color: '#1a1f71', bg: '#eff1ff',
-            icon: '💳',
-            steps: [
-                { title: 'Pilih Visa di Halaman Pembayaran', desc: 'Klik opsi <strong>Visa</strong> dan pastikan kartu kamu aktif untuk transaksi online.' },
-                { title: 'Isi Data Kartu', desc: 'Masukkan 16 digit nomor kartu Visa, nama pemegang kartu, masa berlaku (MM/YY).' },
-                { title: 'Masukkan CVV', desc: 'Isi 3 digit CVV yang ada di belakang kartu kamu.' },
-                { title: 'Verifikasi 3D Secure', desc: 'Kamu akan diarahkan ke halaman verifikasi bank (OTP dikirim via SMS/email).' },
-                { title: 'Masukkan Kode OTP', desc: 'Salin kode OTP yang diterima dan masukkan di kolom verifikasi.' },
-                { title: 'Pembayaran Dikonfirmasi', desc: 'Bank memproses transaksi. Tiket dikirim ke email setelah konfirmasi diterima.' }
-            ],
-            note: '🔒 Transaksi dilindungi Verified by Visa (3D Secure). Pastikan limit kartu mencukupi.'
-        },
-        'Mastercard': {
-            title: 'Kartu Mastercard',
-            color: '#eb001b', bg: '#fff1f1',
-            icon: '💳',
-            steps: [
-                { title: 'Pilih Mastercard di J-TRIP', desc: 'Klik opsi <strong>Mastercard</strong> dan pastikan kartu aktif untuk transaksi online.' },
-                { title: 'Isi Detail Kartu', desc: 'Masukkan nomor kartu 16 digit, nama lengkap pemegang kartu, dan expired date.' },
-                { title: 'Masukkan CVC', desc: 'Isi 3 digit CVC yang tercetak di bagian belakang kartu Mastercard kamu.' },
-                { title: 'Autentikasi Mastercard SecureCode', desc: 'Halaman verifikasi terbuka. OTP dikirim ke nomor HP yang terdaftar di bank.' },
-                { title: 'Input Kode OTP', desc: 'Masukkan kode OTP dalam waktu yang ditentukan untuk menyelesaikan transaksi.' },
-                { title: 'Konfirmasi Berhasil', desc: 'Transaksi diproses bank penerbit. Tiket J-TRIP langsung masuk ke emailmu.' }
-            ],
-            note: '🔒 Transaksi dilindungi Mastercard Identity Check. Pastikan limit online payment aktif.'
-        }
-    };
-
     let payState = {
-        namaDestinasi: '',
-        foto: '',
-        tanggal: '',
-        qty: 2,
-        harga: 0,
-        metode: ''
+    idWisata: '',
+    namaDestinasi: '',
+    foto: '',
+    tanggal: '',
+    qty: 2,
+    harga: 0,
+};
+
+const IS_LOGGED_IN = @json(Auth::check());
+const LOGIN_URL = "{{ url('/login') }}";
+
+function openPayment(data) {
+    payState = {
+        idWisata: data.idWisata,
+        namaDestinasi: data.namaDestinasi,
+        foto: data.foto,
+        tanggal: data.tanggal,
+        qty: data.qty,
+        harga: data.harga,
     };
 
-    function openPayment(data) {
-        payState = { namaDestinasi: data.namaDestinasi, foto: data.foto, tanggal: data.tanggal, qty: data.qty, harga: data.harga, metode: '' };
+    const tgl = new Date(data.tanggal + 'T00:00:00');
+    const bulanIndo = [
+        'Januari','Februari','Maret','April','Mei','Juni',
+        'Juli','Agustus','September','Oktober','November','Desember'
+    ];
 
-        const tgl = new Date(data.tanggal + 'T00:00:00');
-        const bulanIndo = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-        const tglFormatted = `${tgl.getDate()} ${bulanIndo[tgl.getMonth()]} ${tgl.getFullYear()}`;
+    const tglFormatted = `${tgl.getDate()} ${bulanIndo[tgl.getMonth()]} ${tgl.getFullYear()}`;
+    const subtotal = data.harga * data.qty;
+    const subtotalText = data.harga === 0
+        ? 'Gratis'
+        : 'Rp ' + subtotal.toLocaleString('id-ID');
 
-        document.getElementById('payNamaDestinasi').textContent = data.namaDestinasi;
-        document.getElementById('payFotoDestinasi').src = data.foto;
-        document.getElementById('payTanggal').textContent = tglFormatted;
+    const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    };
 
-        const subtotal = data.harga * data.qty;
-        document.getElementById('payLabelEntry').textContent = `Standard Entry (x${data.qty})`;
-        document.getElementById('paySubtotal').textContent = data.harga === 0 ? 'Gratis' : 'Rp ' + subtotal.toLocaleString('id-ID');
-        document.getElementById('payTotal').textContent = data.harga === 0 ? 'Gratis' : 'Rp ' + subtotal.toLocaleString('id-ID');
+    const setSrc = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.src = value;
+    };
 
-        resetPaymentOptions();
-        showAccordion(null);
+    setText('payNamaDestinasi', data.namaDestinasi);
+    setSrc('payFotoDestinasi', data.foto);
 
-        const overlay = document.getElementById('paymentOverlay');
-        const modal = document.getElementById('paymentModal');
-        overlay.style.display = 'block';
-        modal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-            modal.style.opacity = '1';
-            modal.style.transform = 'translate(-50%, -50%) scale(1)';
-        }));
+    setText('payNamaDestinasiLeft', data.namaDestinasi);
+    setText('payTanggalLeft', tglFormatted);
+    setText('payJumlahLeft', data.qty + ' orang');
+    setText('payLabelEntryLeft', `Standard Entry (x${data.qty})`);
+    setText('paySubtotalLeft', subtotalText);
+    setText('payTotalLeft', subtotalText);
+
+    const overlay = document.getElementById('paymentOverlay');
+    const modal = document.getElementById('paymentModal');
+
+    if (!overlay || !modal) {
+        alert('Modal pembayaran tidak ditemukan.');
+        return;
     }
 
-    function closePayment() {
-        const overlay = document.getElementById('paymentOverlay');
-        const modal = document.getElementById('paymentModal');
-        modal.style.opacity = '0';
-        modal.style.transform = 'translate(-50%, -50%) scale(0.94)';
-        overlay.style.display = 'none';
-        document.body.style.overflow = '';
-        setTimeout(() => { modal.style.display = 'none'; }, 300);
+    overlay.style.display = 'block';
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        modal.style.opacity = '1';
+        modal.style.transform = 'translate(-50%, -50%) scale(1)';
+    }));
+}
+
+function closePayment() {
+    const overlay = document.getElementById('paymentOverlay');
+    const modal = document.getElementById('paymentModal');
+
+    if (!overlay || !modal) return;
+
+    modal.style.opacity = '0';
+    modal.style.transform = 'translate(-50%, -50%) scale(0.94)';
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+function prosesPembayaranMidtrans() {
+    if (!IS_LOGGED_IN) {
+    alert('Silakan login atau register terlebih dahulu untuk membeli tiket.');
+    window.location.href = LOGIN_URL;
+    return;
+}
+    if (!payState.idWisata) {
+        alert('Data wisata tidak ditemukan.');
+        return;
     }
 
-    function toggleAccordion(type) {
-        const contents = { va:'vaContent', ewallet:'ewalletContent', card:'cardContent' };
-        const chevrons = { va:'vaChevron', ewallet:'ewalletChevron', card:'cardChevron' };
-        const el = document.getElementById(contents[type]);
-        const ch = document.getElementById(chevrons[type]);
-        const isOpen = window.getComputedStyle(el).display !== 'none';
-        Object.values(contents).forEach(id => { document.getElementById(id).style.display = 'none'; });
-        Object.values(chevrons).forEach(id => { document.getElementById(id).style.transform = 'rotate(-90deg)'; });
-        if (!isOpen) { el.style.display = ''; ch.style.transform = 'rotate(0deg)'; }
+    if (!payState.tanggal) {
+        alert('Tanggal kunjungan belum dipilih.');
+        return;
     }
 
-    function showAccordion(type) {
-        const map = { va:'vaContent', ewallet:'ewalletContent', card:'cardContent' };
-        const chv = { va:'vaChevron', ewallet:'ewalletChevron', card:'cardChevron' };
-        Object.keys(map).forEach(k => {
-            document.getElementById(map[k]).style.display = (k === type) ? '' : 'none';
-            document.getElementById(chv[k]).style.transform = (k === type) ? 'rotate(0deg)' : 'rotate(-90deg)';
-        });
-    }
+    console.log('Checkout data:', {
+        id_wisata: payState.idWisata,
+        tanggal_kunjungan: payState.tanggal,
+        jumlah_pengunjung: payState.qty,
+        metode_pembayaran: 'Midtrans Snap'
+    });
 
-    function selectPayment(el, metode) {
-        document.querySelectorAll('.pay-option').forEach(e => { e.classList.remove('pay-active'); e.style.backgroundColor='#fff'; e.style.border='2px solid #e5e7eb'; });
-        el.classList.add('pay-active');
-        el.style.backgroundColor = '#f0fdf4';
-        el.style.border = '2px solid #1a7a5e';
-        payState.metode = metode;
-    }
+    fetch("/checkout/midtrans", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id_wisata: payState.idWisata,
+            tanggal_kunjungan: payState.tanggal,
+            jumlah_pengunjung: payState.qty,
+            metode_pembayaran: 'Midtrans Snap'
+        })
+    })
+    .then(async response => {
+        const text = await response.text();
 
-    function resetPaymentOptions() {
-        document.querySelectorAll('.pay-option').forEach(el => { el.classList.remove('pay-active'); el.style.backgroundColor='#fff'; el.style.border='2px solid #e5e7eb'; });
-    }
+        console.log('HTTP Status:', response.status);
+        console.log('Raw response:', text);
 
-    /* ============================================================
-    PROSES PEMBAYARAN → TAMPILKAN LANGKAH
-    ============================================================ */
-    function prosespembayaran() {
-        if (!payState.metode) {
-            alert('Silakan pilih metode pembayaran terlebih dahulu.');
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            alert('Server tidak mengembalikan JSON. Cek Console browser.');
+            throw new Error(text);
+        }
+
+        if (!response.ok) {
+            alert(result.message || 'Checkout gagal. Status: ' + response.status);
+            throw new Error(result.message || text);
+        }
+
+        return result;
+    })
+    .then(result => {
+        console.log('Checkout result:', result);
+
+        if (!result.success) {
+            alert(result.message || 'Gagal membuat pembayaran.');
             return;
         }
 
-        const data = paymentSteps[payState.metode];
-        if (!data) return;
+        if (!result.snap_token) {
+            alert('Snap token kosong. Cek MidtransController.');
+            console.error('Snap token kosong:', result);
+            return;
+        }
 
-        // Isi konten modal langkah
-        document.getElementById('stepsTitle').textContent = data.title;
-
-        // Badge
-        const badge = document.getElementById('stepsBadge');
-        badge.style.background = data.bg;
-        badge.style.color = data.color;
-        badge.innerHTML = `<span style="font-size:1rem;">${data.icon}</span> ${data.title}`;
-
-        // Steps
-        const content = document.getElementById('stepsContent');
-        content.innerHTML = data.steps.map((s, i) =>
-            `<div class="step-item">
-                <div class="step-num">${i+1}</div>
-                <div class="step-text"><strong>${s.title}</strong>${s.desc}</div>
-            </div>`
-        ).join('') + `<div class="step-note">${data.note}</div>
-        <div style="margin-top:18px;padding:14px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;text-align:center;">
-            <p style="font-size:.8rem;font-weight:700;color:#1a4a2e;margin:0 0 4px;">✅ Pesanan Dikonfirmasi</p>
-            <p style="font-size:.75rem;color:#6b7280;margin:0;">Destinasi: <strong>${payState.namaDestinasi}</strong> · Tanggal: <strong>${document.getElementById('payTanggal').textContent}</strong> · ${payState.qty} orang · ${document.getElementById('payTotal').textContent}</p>
-        </div>`;
-
-        // Tampilkan modal langkah (di atas payment modal)
-        const stepsOverlay = document.getElementById('stepsOverlay');
-        const stepsModal = document.getElementById('stepsModal');
-        stepsOverlay.style.display = 'block';
-        stepsModal.style.display = 'block';
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-            stepsModal.style.opacity = '1';
-            stepsModal.style.transform = 'translate(-50%, -50%) scale(1)';
-        }));
-    }
+        snap.pay(result.snap_token, {
+            onSuccess: function(midtransResult) {
+                console.log('Midtrans success:', midtransResult);
+                alert('Pembayaran berhasil! Status akan diproses otomatis.');
+                window.location.href = "{{ url('/wisata') }}";
+            },
+            onPending: function(midtransResult) {
+                console.log('Midtrans pending:', midtransResult);
+                alert('Pembayaran masih pending. Silakan selesaikan pembayaran.');
+                window.location.href = "{{ url('/wisata') }}";
+            },
+            onError: function(midtransResult) {
+                console.error('Midtrans error:', midtransResult);
+                alert('Pembayaran gagal.');
+            },
+            onClose: function() {
+                alert('Popup pembayaran ditutup sebelum selesai.');
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Checkout error:', error);
+        alert('Terjadi kesalahan saat memproses pembayaran. Buka Console untuk lihat detail error.');
+    });
+}
 
     function closeSteps() {
         const stepsModal = document.getElementById('stepsModal');

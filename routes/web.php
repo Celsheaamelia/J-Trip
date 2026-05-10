@@ -12,6 +12,7 @@ use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\UmkmController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MidtransController;
+use App\Http\Controllers\RiwayatPesananController;
 
 Route::get('/admin/umkm', [UmkmController::class, 'index'])
     ->name('admin.umkm.index');
@@ -53,6 +54,8 @@ Route::get('/login', function () {
 });
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->name('logout');
 
 Route::get('/register', function () {
     return view('auth.register');
@@ -86,5 +89,16 @@ Route::delete('/admin/wisata/{id}/delete', [WisataController::class, 'destroy'])
 
 Route::post('/midtrans/snap-token/{id}', [MidtransController::class, 'createSnapToken'])
     ->name('midtrans.snap-token');
-Route::post('/checkout/midtrans', [MidtransController::class, 'checkout'])
-    ->name('midtrans.checkout');
+Route::middleware('auth')->group(function () {
+    Route::post('/checkout/midtrans', [MidtransController::class, 'checkout'])
+        ->name('midtrans.checkout');
+
+    Route::post('/checkout/midtrans/success', [MidtransController::class, 'success'])
+        ->name('midtrans.success');
+
+    Route::get('/riwayat-pesanan', [RiwayatPesananController::class, 'index'])
+        ->name('riwayat.pesanan.index');
+
+    Route::get('/riwayat-pesanan/{id}', [RiwayatPesananController::class, 'show'])
+        ->name('riwayat.pesanan.show');
+});

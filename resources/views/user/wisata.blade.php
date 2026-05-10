@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <link rel="stylesheet" href="/css/landing.css?v=1">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wisata - J-TRIP</title>
@@ -23,15 +24,8 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-dark); min-height: 100vh; }
 
-        .navbar { position:sticky;top:0;z-index:200;background:#fff;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:62px; }
-        .brand { font-size:1.35rem;font-weight:800;color:var(--primary);letter-spacing:-.5px;text-decoration:none; }
-        .nav-links { display:flex;gap:30px;list-style:none; }
-        .nav-links a { text-decoration:none;font-size:.9rem;font-weight:600;color:var(--text-muted);padding-bottom:3px;border-bottom:2px solid transparent;transition:all .2s; }
-        .nav-links a.active, .nav-links a:hover { color:var(--primary);border-bottom-color:var(--primary); }
-        .avatar-btn { width:36px;height:36px;border-radius:50%;background:var(--primary-light);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--primary);transition:background .2s; }
-        .avatar-btn:hover { background:#c5e3d8; }
 
-        .ph { max-width:1160px;margin:0 auto;padding:38px 40px 0; }
+        .ph { max-width:1160px;margin:0 auto;padding:110px 40px 0; }
         .ph h1 { font-size:2rem;font-weight:800;letter-spacing:-.5px;line-height:1.15; }
         .ph p { color:var(--text-muted);font-size:.9rem;margin-top:7px;max-width:500px;line-height:1.65; }
 
@@ -84,8 +78,51 @@
         .pb[disabled] { opacity:.35;cursor:default; }
         .pb svg { width:13px;height:13px; }
 
-        @media(max-width:900px){.wg{grid-template-columns:repeat(2,1fr)}.ph,.sf-bar,.ww{padding-left:20px;padding-right:20px}.navbar{padding:0 20px}}
-        @media(max-width:580px){.wg{grid-template-columns:1fr}.nav-links{display:none}}
+       @media(max-width:900px){
+    .wg {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .ph {
+        padding: 100px 20px 0;
+    }
+
+    .sf-bar,
+    .ww {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+    #navbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04) !important;
+}
+
+#navbar .nav-logo {
+    color: #1a7a5e !important;
+}
+
+#navbar .nav-link {
+    color: #374151 !important;
+}
+
+#navbar .nav-link:hover,
+#navbar .nav-link.active {
+    color: #1a7a5e !important;
+}
+
+#navbar .btn-login {
+    color: #1a7a5e !important;
+}
+
+#navbar .btn-register {
+    background: #1a7a5e !important;
+    color: #ffffff !important;
+}
+@media(max-width:580px){
+    .wg{grid-template-columns:1fr}
+}
     </style>
     <script
     src="https://app.sandbox.midtrans.com/snap/snap.js"
@@ -95,18 +132,54 @@
 
 <body>
 
-<nav class="navbar">
-    <a href="{{ url('/home') }}" class="brand">J-TRIP</a>
-    <ul class="nav-links">
-        <a href="{{ url('/') }}">Home</a>
-        <a href="{{ url('/wisata') }}" class="active">Wisata</a>
-    </ul>
-    <button class="avatar-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-        </svg>
-    </button>
+<nav class="navbar" id="navbar">
+    <div class="nav-container">
+        <a href="{{ url('/') }}" class="nav-logo">J-TRIP</a>
+
+        <ul class="nav-menu">
+            <li>
+                <a href="{{ url('/') }}" class="nav-link">
+                    Beranda
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url('/wisata') }}" class="nav-link active">
+                    Wisata
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url('/#tentang') }}" class="nav-link">
+                    Tentang
+                </a>
+            </li>
+
+            @auth
+                <li>
+                    <a href="{{ route('riwayat.pesanan.index') }}" class="nav-link">
+                        Riwayat Pesanan
+                    </a>
+                </li>
+            @endauth
+        </ul>
+
+        <div class="nav-auth">
+            @guest
+                <a href="{{ url('/login') }}" class="btn-login">Login</a>
+                <a href="{{ url('/register') }}" class="btn-register">Register</a>
+            @endguest
+
+            @auth
+                <form action="{{ route('logout') }}" method="POST" style="display:inline;margin:0;">
+                    @csrf
+                    <button type="submit" class="btn-register" style="border:none;cursor:pointer;font-family:inherit;">
+                        Logout
+                    </button>
+                </form>
+            @endauth
+        </div>
+    </div>
 </nav>
 
 <div class="ph">
@@ -574,7 +647,7 @@ document.getElementById('galleryModal').addEventListener('click', function(e) {
         </div>
     </div>
 
-    <div style="display:flex;overflow-y:auto;max-height:calc(90vh - 52px);">
+    <div style="display:flex;overflow:hidden;min-height:520px;max-height:calc(90vh - 52px);">
 
         {{-- KOLOM KIRI: RINGKASAN HARGA --}}
 <div style="flex:1;padding:28px 32px;border-right:1px solid #f3f4f6;min-width:0;">
@@ -681,32 +754,49 @@ document.getElementById('galleryModal').addEventListener('click', function(e) {
     </div>
 </div>
 
-        {{-- KOLOM KANAN: GAMBAR DAN TOMBOL BAYAR --}}
-<div style="width:320px;flex-shrink:0;display:flex;flex-direction:column;">
-    <div style="position:relative;height:220px;background:#c8e0d8;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-    <img id="payFotoDestinasi" src="" alt="" style="width:100%;height:100%;object-fit:contain;display:block;"
-         onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80'">
-        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.65) 0%,transparent 100%);padding:22px 18px 14px;">
-            <p style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.7);margin:0 0 2px;letter-spacing:.8px;text-transform:uppercase;">Destinasi Pilihan</p>
-            <p id="payNamaDestinasi" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;"></p>
+        {{-- KOLOM KANAN: VISUAL FULL --}}
+<div style="width:340px;flex-shrink:0;position:relative;display:flex;flex-direction:column;min-height:520px;">
+
+    <div style="position:absolute;inset:0;overflow:hidden;">
+        <img id="payFotoDestinasi"
+             src=""
+             alt=""
+             style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;"
+             onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80'">
+    </div>
+
+    <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.78) 0%, rgba(0,0,0,.28) 48%, rgba(0,0,0,.08) 100%);"></div>
+
+    <div style="position:relative;z-index:2;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:24px;">
+
+        <div>
+            <p style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.8);margin:0 0 6px;letter-spacing:.8px;text-transform:uppercase;">
+                Destinasi Pilihan
+            </p>
+
+            <h3 id="payNamaDestinasi" style="font-size:1.25rem;font-weight:900;color:#fff;margin:0;line-height:1.4;text-shadow:0 2px 10px rgba(0,0,0,.35);"></h3>
+        </div>
+
+        <div style="background:rgba(255,255,255,.13);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:18px;box-shadow:0 12px 30px rgba(0,0,0,.18);">
+            <p style="font-size:.72rem;color:rgba(255,255,255,.85);margin:0 0 14px;line-height:1.5;">
+                Lanjutkan pembayaran untuk menyelesaikan pemesanan tiket wisata Anda.
+            </p>
+
+            <button onclick="prosesPembayaranMidtrans()"
+                style="width:100%;padding:14px;background:#ffffff;color:#1a4a2e;border:none;border-radius:12px;font-size:.95rem;font-weight:900;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;box-shadow:0 8px 22px rgba(0,0,0,.16);"
+                onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 10px 28px rgba(0,0,0,.22)'"
+                onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 22px rgba(0,0,0,.16)'">
+                Bayar Sekarang
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#1a4a2e" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </button>
+
+            <p style="font-size:.65rem;color:rgba(255,255,255,.75);text-align:center;margin:10px 0 0;line-height:1.5;">
+                Anda akan diarahkan ke popup pembayaran Midtrans.
+            </p>
         </div>
     </div>
-
-    <div style="padding:20px;margin-top:auto;">
-        <button onclick="prosesPembayaranMidtrans()" style="width:100%;padding:14px;background:#1a4a2e;color:#fff;border:none;border-radius:12px;font-size:.92rem;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s,transform .15s,box-shadow .2s;box-shadow:0 4px 14px rgba(26,74,46,.3);margin-bottom:10px;"
-            onmouseover="this.style.background='#143820';this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(26,74,46,.4)'"
-            onmouseout="this.style.background='#1a4a2e';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 14px rgba(26,74,46,.3)'">
-            Bayar Sekarang
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-        </button>
-
-        <p style="font-size:.65rem;color:#9ca3af;text-align:center;margin:0;line-height:1.5;">
-            Dengan menekan tombol di atas, Anda akan diarahkan ke pembayaran Midtrans.
-        </p>
-    </div>
-</div>
 </div>
 </div>
 
@@ -965,6 +1055,9 @@ let payState = {
     metode: ''
 };
 
+const IS_LOGGED_IN = @json(Auth::check());
+const LOGIN_URL = "{{ url('/login') }}";
+
 function openPayment(data) {
     payState = {
         idWisata: data.idWisata,
@@ -1115,6 +1208,11 @@ function prosespembayaran() {
 }
 
 function prosesPembayaranMidtrans() {
+    if (!IS_LOGGED_IN) {
+    alert('Silakan login atau register terlebih dahulu untuk membeli tiket.');
+    window.location.href = LOGIN_URL;
+    return;
+}
     if (!payState.idWisata) {
         alert('Data wisata tidak ditemukan.');
         return;
@@ -1125,7 +1223,14 @@ function prosesPembayaranMidtrans() {
         return;
     }
 
-    fetch("{{ route('midtrans.checkout') }}", {
+    console.log('Checkout data:', {
+        id_wisata: payState.idWisata,
+        tanggal_kunjungan: payState.tanggal,
+        jumlah_pengunjung: payState.qty,
+        metode_pembayaran: 'Midtrans Snap'
+    });
+
+    fetch("/checkout/midtrans", {
         method: "POST",
         headers: {
             "X-CSRF-TOKEN": "{{ csrf_token() }}",
@@ -1139,23 +1244,55 @@ function prosesPembayaranMidtrans() {
             metode_pembayaran: 'Midtrans Snap'
         })
     })
-    .then(response => response.json())
+    .then(async response => {
+        const text = await response.text();
+
+        console.log('HTTP Status:', response.status);
+        console.log('Raw response:', text);
+
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            alert('Server tidak mengembalikan JSON. Cek Console browser.');
+            throw new Error(text);
+        }
+
+        if (!response.ok) {
+            alert(result.message || 'Checkout gagal. Status: ' + response.status);
+            throw new Error(result.message || text);
+        }
+
+        return result;
+    })
     .then(result => {
+        console.log('Checkout result:', result);
+
         if (!result.success) {
             alert(result.message || 'Gagal membuat pembayaran.');
             return;
         }
 
+        if (!result.snap_token) {
+            alert('Snap token kosong. Cek MidtransController.');
+            console.error('Snap token kosong:', result);
+            return;
+        }
+
         snap.pay(result.snap_token, {
             onSuccess: function(midtransResult) {
-                alert('Pembayaran berhasil!');
+                console.log('Midtrans success:', midtransResult);
+                alert('Pembayaran berhasil! Status akan diproses otomatis.');
                 window.location.href = "{{ url('/wisata') }}";
             },
             onPending: function(midtransResult) {
+                console.log('Midtrans pending:', midtransResult);
                 alert('Pembayaran masih pending. Silakan selesaikan pembayaran.');
                 window.location.href = "{{ url('/wisata') }}";
             },
             onError: function(midtransResult) {
+                console.error('Midtrans error:', midtransResult);
                 alert('Pembayaran gagal.');
             },
             onClose: function() {
@@ -1164,8 +1301,8 @@ function prosesPembayaranMidtrans() {
         });
     })
     .catch(error => {
-        console.error(error);
-        alert('Terjadi kesalahan saat memproses pembayaran.');
+        console.error('Checkout error:', error);
+        alert('Terjadi kesalahan saat memproses pembayaran. Buka Console untuk lihat detail error.');
     });
 }
 
