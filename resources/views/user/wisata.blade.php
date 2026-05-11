@@ -123,6 +123,30 @@
 @media(max-width:580px){
     .wg{grid-template-columns:1fr}
 }
+.profile-dropdown-wrap{position:relative}
+.profile-avatar-btn{display:flex;align-items:center;gap:8px;background:#1a7a5e;border:1.5px solid #14624b;border-radius:50px;padding:5px 12px 5px 5px;cursor:pointer;transition:background .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.profile-avatar-btn:hover{background:#14624b}
+.avatar-circle{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.avatar-name{font-size:.82rem;font-weight:600;color:#fff;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.avatar-chevron{color:rgba(255,255,255,0.9);transition:transform .25s;flex-shrink:0}
+.avatar-chevron.open{transform:rotate(180deg)}
+.profile-dropdown-menu{display:none;position:absolute;top:calc(100% + 10px);right:0;width:260px;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15),0 2px 8px rgba(0,0,0,.08);z-index:10000;overflow:hidden}
+.profile-dropdown-menu.open{display:block;animation:dropdownFadeIn .2s ease}
+@keyframes dropdownFadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.profile-dropdown-header{display:flex;align-items:center;gap:11px;padding:16px 16px 14px;background:#f0fdf4}
+.profile-dropdown-avatar-big{width:44px;height:44px;border-radius:50%;background:#1a7a5e;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.profile-dropdown-name{font-size:.88rem;font-weight:700;color:#111827;line-height:1.3}
+.profile-dropdown-email{font-size:.72rem;color:#6b7280;margin-top:2px;word-break:break-all}
+.profile-dropdown-divider{height:1px;background:#f3f4f6;margin:0}
+.profile-dropdown-info{padding:10px 16px 6px}
+.profile-info-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.78rem;color:#374151;border-bottom:1px solid #f3f4f6}
+.profile-info-row:last-child{border-bottom:none}
+.profile-info-row svg{flex-shrink:0;stroke:#1a7a5e}
+.profile-info-row span{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:185px}
+.profile-dropdown-item{display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:.84rem;font-weight:500;color:#374151;text-decoration:none;background:none;border:none;width:100%;text-align:left;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s,color .15s}
+.profile-dropdown-item:hover{background:#f9fafb;color:#1a7a5e}
+.profile-dropdown-logout{color:#dc2626}
+.profile-dropdown-logout:hover{background:#fef2f2;color:#dc2626}
     </style>
     <script
     src="https://app.sandbox.midtrans.com/snap/snap.js"
@@ -171,13 +195,130 @@
             @endguest
 
             @auth
-                <form action="{{ route('logout') }}" method="POST" style="display:inline;margin:0;">
-                    @csrf
-                    <button type="submit" class="btn-register" style="border:none;cursor:pointer;font-family:inherit;">
-                        Logout
-                    </button>
-                </form>
-            @endauth
+                    <div class="profile-dropdown-wrap" id="profileDropdownWrap">
+                        <button class="profile-avatar-btn" onclick="toggleProfileDropdown(event)">
+                            <div class="avatar-circle">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                            </div>
+                            <span class="avatar-name">{{ Auth::user()->name }}</span>
+                            <svg class="avatar-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div class="profile-dropdown-menu" id="profileDropdownMenu">
+                            <div class="profile-dropdown-header">
+                                <div class="profile-dropdown-avatar-big">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="profile-dropdown-name">{{ Auth::user()->name }}</div>
+                                    <div class="profile-dropdown-email">{{ Auth::user()->email }}</div>
+                                </div>
+                            </div>
+
+                            <div class="profile-dropdown-divider"></div>
+
+                            <div class="profile-dropdown-info">
+
+                                @if (Auth::user()->no_telp)
+                                    <div class="profile-info-row">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                        </svg>
+                                        <span>{{ Auth::user()->no_telp }}</span>
+                                    </div>
+                                @endif
+
+                                @if (Auth::user()->detail?->jenis_kelamin)
+                                    <div class="profile-info-row">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="8" r="4" />
+                                            <path stroke-linecap="round" d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                                        </svg>
+                                        <span>{{ Auth::user()->detail->jenis_kelamin }}</span>
+                                    </div>
+                                @endif
+
+                                @if (Auth::user()->detail?->tanggal_lahir)
+                                    <div class="profile-info-row">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" />
+                                            <line x1="16" y1="2" x2="16" y2="6" />
+                                            <line x1="8" y1="2" x2="8" y2="6" />
+                                            <line x1="3" y1="10" x2="21" y2="10" />
+                                        </svg>
+                                        <span>{{ \Carbon\Carbon::parse(Auth::user()->detail->tanggal_lahir)->format('d M Y') }}</span>
+                                    </div>
+                                @endif
+
+                                @if (Auth::user()->detail?->kewarganegaraan)
+                                    <div class="profile-info-row">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <line x1="2" y1="12" x2="22" y2="12" />
+                                            <path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+                                        </svg>
+                                        <span>{{ Auth::user()->detail->kewarganegaraan }}</span>
+                                    </div>
+                                @endif
+
+                                @if (Auth::user()->detail?->jenis_identitas && Auth::user()->detail?->nomor_identitas)
+                                    <div class="profile-info-row">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                                            <path d="M16 10h2M16 14h2M6 10h6M6 14h4" />
+                                        </svg>
+                                        <span>{{ Auth::user()->detail->jenis_identitas }}:
+                                            {{ Auth::user()->detail->nomor_identitas }}</span>
+                                    </div>
+                                @endif
+
+                            </div>
+
+                            <div class="profile-dropdown-divider"></div>
+
+                            <a href="{{ route('riwayat.pesanan.index') }}" class="profile-dropdown-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+                                    <rect x="9" y="3" width="6" height="4" rx="1" />
+                                </svg>
+                                Riwayat Pesanan
+                            </a>
+
+                            <div class="profile-dropdown-divider"></div>
+
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="profile-dropdown-item profile-dropdown-logout">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    Logout
+                                </button>
+                            </form>
+                        </div>
+                    @endauth
         </div>
     </div>
 </nav>
@@ -1314,6 +1455,23 @@ function closeSteps() {
     stepsOverlay.style.display = 'none';
     setTimeout(() => { stepsModal.style.display = 'none'; }, 250);
 }
+
+function toggleProfileDropdown(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('profileDropdownMenu');
+            const chevron = document.querySelector('.avatar-chevron');
+            const isOpen = menu.classList.contains('open');
+            menu.classList.toggle('open', !isOpen);
+            chevron.classList.toggle('open', !isOpen);
+        }
+        document.addEventListener('click', function(e) {
+            const wrap = document.getElementById('profileDropdownWrap');
+            if (wrap && !wrap.contains(e.target)) {
+                document.getElementById('profileDropdownMenu')?.classList.remove('open');
+                document.querySelector('.avatar-chevron')?.classList.remove('open');
+            }
+        });
+
 </script>
 
 </body>

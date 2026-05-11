@@ -100,6 +100,26 @@ body {
 .navbar.scrolled .nav-logo {
     color: var(--text-dark);
 }
+.navbar.scrolled .profile-avatar-btn {
+    background: #1a7a5e !important;
+    border-color: #14624b !important;
+}
+
+.navbar.scrolled .avatar-name {
+    color: #fff !important;
+}
+
+.navbar.scrolled .avatar-circle {
+    background: rgba(255,255,255,0.25) !important;
+}
+
+.navbar.scrolled .avatar-chevron {
+    color: rgba(255,255,255,0.9) !important;
+}
+
+.navbar.scrolled .avatar-circle svg {
+    stroke: #fff !important;
+}
 
 .nav-container {
     max-width: 1200px;
