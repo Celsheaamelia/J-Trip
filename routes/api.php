@@ -20,3 +20,4 @@ Route::post('/midtrans/notification', [MidtransController::class, 'notification'
     ->name('midtrans.notification');
 
     Route::get('/wisata', [WisataApiController::class, 'index']);
+    Route::get('/wisata-populer', [WisataApiController::class, 'populer']);
