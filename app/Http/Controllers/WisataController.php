@@ -93,6 +93,63 @@ class WisataController extends Controller
         return redirect('/admin/wisata')->with('success', 'Data wisata berhasil ditambahkan');
     }
 
+    public function edit($id)
+{
+    $wisata = Wisata::where('id_wisata', $id)->firstOrFail();
+
+    return view('admin.wisata.edit', compact('wisata'));
+}
+
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'name' => 'required',
+        'kategori' => 'required',
+        'description' => 'required',
+        'price' => 'required|numeric',
+        'kuota_harian' => 'required|integer',
+        'location_name' => 'required',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
+    ]);
+
+    $wisata = Wisata::where('id_wisata', $id)->firstOrFail();
+
+    $imageName = $wisata->image;
+
+if ($request->hasFile('image')) {
+
+    // hapus gambar lama
+    if ($wisata->image &&
+        file_exists(public_path('uploads/wisata/' . $wisata->image))) {
+
+        unlink(public_path('uploads/wisata/' . $wisata->image));
+    }
+
+    // upload gambar baru
+    $imageName = time() . '_' . $request->image->getClientOriginalName();
+
+    $request->image->move(public_path('uploads/wisata'), $imageName);
+}
+
+    $wisata->update([
+        'name' => $request->name,
+        'kategori' => $request->kategori,
+        'description' => $request->description,
+        'price' => $request->price,
+        'kuota_harian' => $request->kuota_harian,
+        'biaya_parkir' => $request->biaya_parkir ?? 0,
+        'pajak_persen' => $request->pajak_persen ?? 0,
+        'include_parkir' => $request->has('include_parkir') ? 1 : 0,
+        'include_pajak' => $request->has('include_pajak') ? 1 : 0,
+        'location_name' => $request->location_name,
+        'latitude' => $request->latitude,
+        'longitude' => $request->longitude,
+        'image' => $imageName,
+    ]);
+
+    return redirect('/admin/wisata')->with('success', 'Data wisata berhasil diperbarui');
+}
+
     public function destroy($id)
     {
         $wisata = Wisata::where('id_wisata', $id)->firstOrFail();
