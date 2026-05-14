@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <link rel="stylesheet" href="/css/landing.css?v=1">
+    <link rel="stylesheet" href="/css/landing.css?v=50">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wisata - J-TRIP</title>
@@ -132,55 +132,7 @@
 
 <body>
 
-<nav class="navbar" id="navbar">
-    <div class="nav-container">
-        <a href="{{ url('/') }}" class="nav-logo">J-TRIP</a>
-
-        <ul class="nav-menu">
-            <li>
-                <a href="{{ url('/') }}" class="nav-link">
-                    Beranda
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url('/wisata') }}" class="nav-link active">
-                    Wisata
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url('/#tentang') }}" class="nav-link">
-                    Tentang
-                </a>
-            </li>
-
-            @auth
-                <li>
-                    <a href="{{ route('riwayat.pesanan.index') }}" class="nav-link">
-                        Riwayat Pesanan
-                    </a>
-                </li>
-            @endauth
-        </ul>
-
-        <div class="nav-auth">
-            @guest
-                <a href="{{ url('/login') }}" class="btn-login">Login</a>
-                <a href="{{ url('/register') }}" class="btn-register">Register</a>
-            @endguest
-
-            @auth
-                <form action="{{ route('logout') }}" method="POST" style="display:inline;margin:0;">
-                    @csrf
-                    <button type="submit" class="btn-register" style="border:none;cursor:pointer;font-family:inherit;">
-                        Logout
-                    </button>
-                </form>
-            @endauth
-        </div>
-    </div>
-</nav>
+@include('komponen.user-navbar')
 
 <div class="ph">
     <h1>Eksplorasi Keajaiban Jember</h1>

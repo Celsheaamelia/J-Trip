@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <link rel="stylesheet" href="/css/landing.css?v=1">
+    <link rel="stylesheet" href="/css/landing.css?v=50">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -234,46 +234,7 @@
 <body>
 
 {{-- ===== NAVBAR USER ===== --}}
-<nav class="navbar" id="navbar">
-    <div class="nav-container">
-        <a href="{{ url('/') }}" class="nav-logo">J-TRIP</a>
-
-        <ul class="nav-menu">
-            <li>
-                <a href="{{ url('/') }}" class="nav-link">
-                    Beranda
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url('/wisata') }}" class="nav-link">
-                    Wisata
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url('/#tentang') }}" class="nav-link">
-                    Tentang
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ route('riwayat.pesanan.index') }}" class="nav-link active">
-                    Riwayat Pesanan
-                </a>
-            </li>
-        </ul>
-
-        <div class="nav-auth">
-            <form action="{{ route('logout') }}" method="POST" style="display:inline;margin:0;">
-                @csrf
-                <button type="submit" class="btn-register">
-                    Logout
-                </button>
-            </form>
-        </div>
-    </div>
-</nav>
+@include('komponen.user-navbar')
 
 <main class="barcode-page">
 

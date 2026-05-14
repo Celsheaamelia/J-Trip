@@ -10,46 +10,11 @@
         <title>J-TRIP - Jelajahi Wisata Terbaik di Jember</title>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-        <link rel="stylesheet" href="/css/landing.css?v=1">
+        <link rel="stylesheet" href="/css/landing.css?v=50">
     </head>
     <body>
 
-        {{-- ===== NAVBAR ===== --}}
-        <nav class="navbar" id="navbar">
-    <div class="nav-container">
-        <a href="{{ url('/') }}" class="nav-logo">J-TRIP</a>
-
-        <ul class="nav-menu">
-            <li><a href="#beranda" class="nav-link active">Beranda</a></li>
-            <li><a href="#destinasi" class="nav-link">Wisata</a></li>
-            <li><a href="#tentang" class="nav-link">Tentang</a></li>
-
-            @auth
-                <li>
-                    <a href="{{ route('riwayat.pesanan.index') }}" class="nav-link">
-                        Riwayat Pesanan
-                    </a>
-                </li>
-            @endauth
-        </ul>
-
-        <div class="nav-auth">
-            @guest
-                <a href="{{ url('/login') }}" class="btn-login">Login</a>
-                <a href="{{ url('/register') }}" class="btn-register">Register</a>
-            @endguest
-
-            @auth
-                <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                    @csrf
-                    <button type="submit" class="btn-register" style="border:none;cursor:pointer;">
-                        Logout
-                    </button>
-                </form>
-            @endauth
-        </div>
-    </div>
-</nav>
+       @include('komponen.user-navbar')
 
         {{-- ===== HERO SECTION ===== --}}
         <section class="hero" id="beranda">

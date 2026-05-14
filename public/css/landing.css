@@ -787,6 +787,551 @@ body {
     opacity: 1;
     transform: translateY(0);
 }   
+/* =========================================================
+   GLOBAL USER RESPONSIVE FIX - FINAL
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    margin: 0;
+}
+
+/* ===== USER NAVBAR GLOBAL ===== */
+
+.user-navbar,
+#navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+}
+
+.mobile-menu-btn {
+    display: none !important;
+    border: none;
+    background: transparent;
+    color: #1a7a5e;
+    font-size: 24px;
+    font-weight: 900;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.nav-logout-btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* =========================================================
+   DESKTOP NAVBAR
+   ========================================================= */
+
+@media (min-width: 769px) {
+    .mobile-menu-btn {
+        display: none !important;
+    }
+
+    .nav-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
+    }
+
+    .nav-logo {
+        flex-shrink: 0 !important;
+    }
+
+    .nav-menu {
+        display: flex !important;
+        position: static !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        list-style: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 28px !important;
+    }
+
+    .nav-menu li {
+        width: auto !important;
+    }
+
+    .nav-link {
+        width: auto !important;
+        padding: 0 !important;
+        background: transparent !important;
+        text-decoration: none !important;
+    }
+
+    .nav-auth {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        margin-left: 0 !important;
+        white-space: nowrap !important;
+    }
+}
+
+/* =========================================================
+   MOBILE NAVBAR
+   Logo + hamburger berdampingan
+   ========================================================= */
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 76px;
+    }
+
+    .navbar,
+    .user-navbar,
+    #navbar {
+        background: rgba(255, 255, 255, 0.98) !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08) !important;
+        backdrop-filter: blur(12px);
+        padding: 0 !important;
+    }
+
+    .nav-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 8px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 12px 16px !important;
+        position: relative !important;
+    }
+
+    .nav-logo {
+        flex-shrink: 0 !important;
+        font-size: 21px !important;
+        color: #1a7a5e !important;
+        white-space: nowrap !important;
+        text-decoration: none !important;
+    }
+
+    .mobile-menu-btn {
+        display: block !important;
+        flex-shrink: 0 !important;
+        margin-left: 2px !important;
+        padding: 4px 6px !important;
+        border: none !important;
+        background: transparent !important;
+        color: #1a7a5e !important;
+        font-size: 22px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
+    }
+
+    .nav-auth {
+        margin-left: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        white-space: nowrap !important;
+    }
+
+    .btn-login,
+    .btn-register,
+    .nav-logout-btn {
+        font-size: 11px !important;
+        padding: 7px 10px !important;
+        border-radius: 999px !important;
+        white-space: nowrap !important;
+    }
+
+    .nav-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 12px !important;
+        right: 12px !important;
+        display: none !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+        list-style: none !important;
+        padding: 10px !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+        border-radius: 16px !important;
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.14) !important;
+        z-index: 99999 !important;
+    }
+
+    .nav-menu.show {
+        display: flex !important;
+    }
+
+    .nav-menu li {
+        width: 100% !important;
+    }
+
+    .nav-link {
+        display: block !important;
+        width: 100% !important;
+        padding: 11px 12px !important;
+        font-size: 14px !important;
+        color: #374151 !important;
+        border-radius: 12px !important;
+        text-decoration: none !important;
+        background: transparent !important;
+    }
+
+    .nav-link.active,
+    .nav-link:hover {
+        background: #e6f4ef !important;
+        color: #1a7a5e !important;
+    }
+
+    /* ===== PAGE WRAPPER CONSISTENCY ===== */
+
+    .container,
+    .ph,
+    .sf-bar,
+    .ww,
+    .riwayat-page,
+    .barcode-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+
+    .ph {
+        padding-top: 38px !important;
+    }
+
+    .riwayat-page,
+    .barcode-page {
+        padding-top: 38px !important;
+    }
+
+    h1,
+    .page-title,
+    .hero-title,
+    .summary-title {
+        font-size: 25px !important;
+        line-height: 1.25 !important;
+    }
+
+    .page-subtitle,
+    .hero-desc,
+    .ph p {
+        font-size: 14px !important;
+        line-height: 1.6 !important;
+    }
+
+    /* ===== HERO MOBILE ===== */
+
+    .hero {
+        min-height: 620px !important;
+        height: auto !important;
+        padding-top: 40px !important;
+    }
+
+    .hero-content {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+    }
+
+    .hero-title {
+        max-width: 100% !important;
+    }
+
+    .hero-desc br,
+    .hero-title br {
+        display: none !important;
+    }
+
+    .hero-buttons {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .hero-buttons a {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    /* ===== GRID CONSISTENCY ===== */
+
+    .features-grid,
+    .destinasi-grid,
+    .wg,
+    .riwayat-grid,
+    .summary-grid,
+    .qr-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .card,
+    .dest-card,
+    .feature-card,
+    .riwayat-card,
+    .summary-card,
+    .qr-card {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    img {
+        max-width: 100%;
+    }
+
+    /* ===== WISATA PAGE ===== */
+
+    .sf-bar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+
+    .sw {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .ftabs {
+        width: 100%;
+        display: flex !important;
+        overflow-x: auto;
+        flex-wrap: nowrap !important;
+        gap: 8px;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+
+    .ftabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .ft {
+        flex-shrink: 0;
+    }
+
+    .ci,
+    .dest-img-wrap {
+        height: 190px !important;
+    }
+
+    /* ===== DETAIL SLIDE MOBILE FIX ===== */
+
+    #detailSlide {
+        z-index: 10000 !important;
+        overflow-x: hidden !important;
+    }
+
+    #detailSlide > div {
+        padding: 14px 14px 70px !important;
+    }
+
+    #detailCard {
+        border-radius: 16px !important;
+        max-width: 100% !important;
+    }
+
+    #detailCard > div:nth-child(2) {
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 12px 14px 24px !important;
+        gap: 0 !important;
+    }
+
+    #detailCard div[style*="flex:0 0 500px"] {
+        flex: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    #detailCard div[style*="height:230px"] {
+        height: 210px !important;
+    }
+
+    #detailCard div[style*="padding-left:28px"] {
+        padding-left: 0 !important;
+        padding-top: 18px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    #detailTitle {
+        font-size: 22px !important;
+        line-height: 1.25 !important;
+    }
+
+    #detailDesc {
+        font-size: 13px !important;
+        line-height: 1.65 !important;
+    }
+
+    /* ===== PAYMENT MODAL MOBILE FIX ===== */
+
+    #paymentModal {
+        width: 94% !important;
+        max-width: 94% !important;
+        max-height: 92vh !important;
+        overflow-y: auto !important;
+        border-radius: 16px !important;
+    }
+
+    #paymentModal > div:nth-child(2) {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    #paymentModal > div:nth-child(2) > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-right: none !important;
+    }
+
+    #paymentModal div[style*="width:340px"] {
+        width: 100% !important;
+        min-height: 260px !important;
+        order: -1 !important;
+    }
+
+    #stepsModal {
+        width: 94% !important;
+        max-width: 94% !important;
+        max-height: 88vh !important;
+    }
+
+    #galleryBig {
+        max-width: 92vw !important;
+        max-height: 64vh !important;
+    }
+
+    #galleryBigImg {
+        max-height: 64vh !important;
+    }
+
+    /* ===== RIWAYAT / BARCODE ===== */
+
+    .riwayat-card {
+        padding: 18px !important;
+    }
+
+    .summary-card {
+        padding: 18px !important;
+    }
+
+    .qr-box svg {
+        max-width: 170px !important;
+        height: auto !important;
+    }
+
+    .back-link {
+        margin-bottom: 16px !important;
+    }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+    body {
+        padding-top: 70px;
+    }
+
+    .nav-container {
+        padding: 10px 12px !important;
+        gap: 6px !important;
+    }
+
+    .nav-logo {
+        font-size: 19px !important;
+    }
+
+    .mobile-menu-btn {
+        font-size: 20px !important;
+        padding: 4px !important;
+    }
+
+    .btn-login,
+    .btn-register,
+    .nav-logout-btn {
+        font-size: 10px !important;
+        padding: 6px 9px !important;
+    }
+
+    h1,
+    .page-title,
+    .hero-title,
+    .summary-title {
+        font-size: 22px !important;
+    }
+
+    .container,
+    .ph,
+    .sf-bar,
+    .ww,
+    .riwayat-page,
+    .barcode-page {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+    }
+
+    .ci,
+    .dest-img-wrap {
+        height: 170px !important;
+    }
+}
+
+/* =========================================================
+   FIX HOSTING CLICK ISSUE
+   ========================================================= */
+
+#galleryModal[style*="display:none"],
+#paymentOverlay[style*="display:none"],
+#paymentModal[style*="display:none"],
+#stepsOverlay[style*="display:none"],
+#stepsModal[style*="display:none"] {
+    pointer-events: none !important;
+}
+
+#galleryModal,
+#paymentOverlay,
+#paymentModal,
+#stepsOverlay,
+#stepsModal {
+    pointer-events: auto;
+}
+
+#detailSlide {
+    pointer-events: none;
+}
+
+#detailSlide[style*="translateX(0)"] {
+    pointer-events: auto;
+}
 
 
 
