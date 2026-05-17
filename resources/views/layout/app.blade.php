@@ -140,6 +140,86 @@
     </style>
 
     @yield('styles')
+
+    <style>
+    .table-footer {
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        border-top: 1px solid #f0f0f0;
+        background: #fff;
+    }
+
+    .footer-text {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .pagination-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .page-item-ui {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: #666;
+        background: #fff;
+        border: 1px solid #ececec;
+        text-decoration: none;
+        line-height: 1;
+    }
+
+    .page-item-ui:hover {
+        background: #e8f3ed;
+        border-color: #155c43;
+        color: #155c43;
+        text-decoration: none;
+    }
+
+    .page-item-ui.active {
+        background: #155c43;
+        color: #fff;
+        border-color: #155c43;
+    }
+
+    .page-item-ui.disabled {
+        background: #f3f4f6;
+        color: #9ca3af;
+        pointer-events: none;
+    }
+
+    .page-item-ui.dots {
+        border-color: transparent;
+        background: transparent;
+        pointer-events: none;
+    }
+
+    /* Matikan panah SVG besar bawaan Laravel/Tailwind */
+    nav[role="navigation"] svg,
+    .pagination svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+
+    @media (max-width: 768px) {
+        .table-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
 </head>
 
 <body>

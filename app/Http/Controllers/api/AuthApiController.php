@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Services\OtpService;    
 
 class AuthApiController extends Controller
 {
@@ -99,37 +100,36 @@ class AuthApiController extends Controller
 
         /** @var \App\Models\User $user */
         $user = User::create([
-            'id_user' => $this->generateUserId(),
-            'name' => $request->name,
-            'email' => $request->email,
-            'no_telp' => $request->no_telp,
-            'password' => Hash::make($request->password),
-            'role' => 'user',
-            'status' => 'aktif',
-        ]);
+        'id_user' => $this->generateUserId(),
+        'name' => $request->name,
+        'email' => $request->email,
+        'no_telp' => $request->no_telp,
+        'password' => Hash::make($request->password),
+        'role' => 'user',
+        'status' => 'pending',
+    ]);
 
-        DetailUser::create([
-            'id_dtl_user' => $this->generateDetailUserId(),
-            'id_user' => $user->id_user,
-            'jenis_identitas' => $request->jenis_identitas ?? 'nik',
-            'nomor_identitas' => $request->nomor_identitas ?? '-',
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'kewarganegaraan' => $request->kewarganegaraan ?? 'domestik',
-        ]);
+    DetailUser::create([
+        'id_dtl_user' => $this->generateDetailUserId(),
+        'id_user' => $user->id_user,
+        'jenis_identitas' => $request->jenis_identitas ?? 'nik',
+        'nomor_identitas' => $request->nomor_identitas ?? '-',
+        'jenis_kelamin' => $request->jenis_kelamin,
+        'tanggal_lahir' => $request->tanggal_lahir,
+        'kewarganegaraan' => $request->kewarganegaraan ?? 'domestik',
+    ]);
 
-        $token = $user->createToken('mobile-token')->plainTextToken;
+    app(OtpService::class)->sendRegisterOtp($user->email);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Register berhasil',
-            'data' => [
-                'token_type' => 'Bearer',
-                'access_token' => $token,
-                'user' => $this->formatUser($user),
-            ],
-        ], 201);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Register berhasil. Kode OTP sudah dikirim ke email.',
+        'data' => [
+            'email' => $user->email,
+            'needs_verification' => true,
+        ],
+    ], 201);
+        }
 
     public function login(Request $request)
     {
@@ -227,6 +227,100 @@ class AuthApiController extends Controller
             ],
         ]);
     }
+
+    public function verifyOtp(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email',
+        'otp_code' => 'required|string|min:6|max:6',
+    ], [
+        'email.required' => 'Email wajib diisi.',
+        'email.email' => 'Format email tidak valid.',
+        'otp_code.required' => 'Kode OTP wajib diisi.',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validasi gagal',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $isValid = app(\App\Services\OtpService::class)
+        ->verifyRegisterOtp($request->email, $request->otp_code);
+
+    if (!$isValid) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Kode OTP salah atau sudah kadaluarsa.',
+        ], 422);
+    }
+
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User tidak ditemukan.',
+        ], 404);
+    }
+
+    $user->update([
+        'status' => 'aktif',
+        'email_verified_at' => now(),
+    ]);
+
+    $token = $user->createToken('mobile-token')->plainTextToken;
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Verifikasi OTP berhasil.',
+        'data' => [
+            'token_type' => 'Bearer',
+            'access_token' => $token,
+            'user' => $this->formatUser($user),
+        ],
+    ]);
+}
+
+public function resendOtp(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validasi gagal',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User tidak ditemukan.',
+        ], 404);
+    }
+
+    if ($user->status === 'aktif') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Akun sudah aktif.',
+        ], 422);
+    }
+
+    app(\App\Services\OtpService::class)->sendRegisterOtp($user->email);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Kode OTP baru sudah dikirim.',
+    ]);
+}
 
     public function logout(Request $request)
 {

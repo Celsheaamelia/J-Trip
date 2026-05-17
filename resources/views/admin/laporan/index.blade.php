@@ -147,6 +147,78 @@
         background: #155c43;
         color: white;
     }
+    .admin-pagination-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-top: 22px;
+    padding: 16px 2px 0;
+}
+
+.admin-pagination-info {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.admin-pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-pagination .page-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #155c43;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.admin-pagination .page-btn:hover {
+    background: #e8f5ec;
+    border-color: #155c43;
+    color: #155c43;
+}
+
+.admin-pagination .page-btn.active {
+    background: #155c43;
+    border-color: #155c43;
+    color: #ffffff;
+}
+
+.admin-pagination .page-btn.disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+/* Matikan SVG panah besar dari pagination default Laravel/Tailwind */
+nav[role="navigation"] svg,
+.pagination svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+@media (max-width: 768px) {
+    .admin-pagination-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .admin-pagination {
+        flex-wrap: wrap;
+    }
+}
 </style>
 @endsection
 
@@ -216,8 +288,22 @@
             <div class="table-title">Data Rinci Transaksi</div>
 
             <div class="d-flex gap-2">
-                <button class="btn-export">Export PDF</button>
-                <button class="btn-export green">Export Excel</button>
+                <a href="{{ route('admin.laporan.export.pdf', [
+        'start_date' => $start,
+        'end_date' => $end,
+    ]) }}"
+   target="_blank"
+   class="btn-export text-decoration-none">
+    Export PDF
+</a>
+
+<a href="{{ route('admin.laporan.export.excel', [
+        'start_date' => $start,
+        'end_date' => $end,
+    ]) }}"
+   class="btn-export green text-decoration-none">
+    Export Excel
+</a>
             </div>
         </div>
 
@@ -267,7 +353,39 @@
 </div>
 
            <div>
-    {{ $transaksis->links() }}
+    @if ($transaksis->hasPages())
+    <div class="admin-pagination-wrap">
+        <div class="admin-pagination-info">
+            Menampilkan {{ $transaksis->firstItem() }} - {{ $transaksis->lastItem() }}
+            dari {{ $transaksis->total() }} transaksi
+        </div>
+
+        <div class="admin-pagination">
+            {{-- Previous --}}
+            @if ($transaksis->onFirstPage())
+                <span class="page-btn disabled">‹</span>
+            @else
+                <a href="{{ $transaksis->previousPageUrl() }}" class="page-btn">‹</a>
+            @endif
+
+            {{-- Page Numbers --}}
+            @foreach ($transaksis->getUrlRange(1, $transaksis->lastPage()) as $page => $url)
+                @if ($page == $transaksis->currentPage())
+                    <span class="page-btn active">{{ $page }}</span>
+                @else
+                    <a href="{{ $url }}" class="page-btn">{{ $page }}</a>
+                @endif
+            @endforeach
+
+            {{-- Next --}}
+            @if ($transaksis->hasMorePages())
+                <a href="{{ $transaksis->nextPageUrl() }}" class="page-btn">›</a>
+            @else
+                <span class="page-btn disabled">›</span>
+            @endif
+        </div>
+    </div>
+@endif
 </div>
         </div>
 

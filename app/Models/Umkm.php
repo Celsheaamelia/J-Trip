@@ -7,12 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Umkm extends Model
 {
     protected $table = 'umkm';
+
     protected $primaryKey = 'id_umkm';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
+
     const CREATED_AT = 'dibuat_pada';
     const UPDATED_AT = 'diperbarui_pada';
-
 
     protected $fillable = [
         'id_umkm',
@@ -21,7 +24,7 @@ class Umkm extends Model
         'deskripsi',
         'id_wisata',
         'latitude',
-        'longitude'
+        'longitude',
     ];
 
     public function wisata()

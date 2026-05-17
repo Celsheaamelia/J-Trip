@@ -93,11 +93,11 @@
 
                     <td>
                         <div class="d-flex gap-2">
-                            <a href="/admin/wisata/{{ $item->id_wisata }}/edit" class="btn btn-sm btn-warning">
+                            <a href="{{ route('admin.wisata.edit', $item->id_wisata) }}"
+                            class="btn btn-sm btn-warning">
                                 Edit
                             </a>
-
-                            <form action="/admin/wisata/{{ $item->id_wisata }}/delete" method="POST"
+                            <form action="{{ route('admin.wisata.destroy', $item->id_wisata) }}" method="POST"
                                   onsubmit="return confirm('Yakin ingin menghapus wisata ini?')">
                                 @csrf
                                 @method('DELETE')

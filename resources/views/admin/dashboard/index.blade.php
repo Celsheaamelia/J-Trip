@@ -79,6 +79,7 @@
         padding: 8px 14px;
         font-size: 13px;
         font-weight: 600;
+        text-decoration: none;
     }
 
     .logout-btn:hover {
@@ -234,22 +235,24 @@
         overflow: hidden;
         box-shadow: 0 8px 20px rgba(0,0,0,0.04);
         height: 100%;
+        min-height: 282px;
     }
 
     .destination-image {
         width: 100%;
-        height: 210px;
+        height: 282px;
         object-fit: cover;
         display: block;
+        background: #e5e7eb;
     }
 
     .destination-overlay {
         padding: 14px 16px;
-        background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0));
-        margin-top: -72px;
+        background: linear-gradient(to top, rgba(0,0,0,0.74), rgba(0,0,0,0));
+        margin-top: -82px;
         position: relative;
         color: #fff;
-        min-height: 72px;
+        min-height: 82px;
     }
 
     .destination-name {
@@ -343,10 +346,21 @@
         font-weight: 700;
     }
 
+    .status-warning {
+        color: #b7791f;
+        font-weight: 700;
+    }
+
     .nominal-text {
         font-weight: 700;
         color: #374151;
         white-space: nowrap;
+    }
+
+    .empty-text {
+        text-align: center;
+        color: #9aa3af;
+        padding: 22px 8px;
     }
 
     @media (max-width: 768px) {
@@ -361,11 +375,35 @@
         .chart-wrapper {
             height: 240px;
         }
+
+        .destination-image {
+            height: 230px;
+        }
     }
 </style>
 @endsection
 
 @section('content')
+
+@php
+    $adminName = auth()->user()->name ?? 'Admin JTrip';
+    $adminRole = 'Super Admin';
+
+    /*
+        Folder gambar wisata:
+        public/uploads/wisata/nama_file.jpg
+
+        Kalau folder kamu ternyata public/upload/wisata,
+        ganti uploads/wisata jadi upload/wisata.
+    */
+    $defaultImage = asset('assets/images/default.jpg');
+
+    if (!empty($popularDestination) && !empty($popularDestination->image)) {
+        $popularImage = asset('uploads/wisata/' . $popularDestination->image);
+    } else {
+        $popularImage = $defaultImage;
+    }
+@endphp
 
 <div class="dashboard-page">
 
@@ -378,13 +416,15 @@
         <div class="d-flex align-items-center gap-3">
             <div class="profile-box">
                 <div class="profile-text">
-                    <div class="name">Admin JTrip</div>
-                    <div class="role">Super Admin</div>
+                    <div class="name">{{ $adminName }}</div>
+                    <div class="role">{{ $adminRole }}</div>
                 </div>
                 <div class="profile-avatar">👤</div>
             </div>
 
-            <button class="btn logout-btn">Keluar</button>
+            <a href="{{ url('/logout') }}" class="btn logout-btn">
+                Keluar
+            </a>
         </div>
     </div>
 
@@ -400,10 +440,12 @@
             <div class="summary-card h-100">
                 <div class="summary-top">
                     <div class="summary-icon">🏞</div>
-                    <div class="summary-badge">+12% Bulan Ini</div>
+                    <div class="summary-badge">Database</div>
                 </div>
                 <div class="summary-label">Total Wisata</div>
-                <div class="summary-value">42</div>
+                <div class="summary-value">
+                    {{ number_format($totalWisata ?? 0, 0, ',', '.') }}
+                </div>
             </div>
         </div>
 
@@ -411,10 +453,12 @@
             <div class="summary-card h-100">
                 <div class="summary-top">
                     <div class="summary-icon">🎟</div>
-                    <div class="summary-badge">+12% Bulan Ini</div>
+                    <div class="summary-badge">Paid / Used</div>
                 </div>
                 <div class="summary-label">Tiket Terjual</div>
-                <div class="summary-value">12,282</div>
+                <div class="summary-value">
+                    {{ number_format($tiketTerjual ?? 0, 0, ',', '.') }}
+                </div>
             </div>
         </div>
 
@@ -422,10 +466,12 @@
             <div class="summary-card h-100">
                 <div class="summary-top">
                     <div class="summary-icon">📊</div>
-                    <div class="summary-badge">+12% Bulan Ini</div>
+                    <div class="summary-badge">Semua Status</div>
                 </div>
                 <div class="summary-label">Total Transaksi</div>
-                <div class="summary-value">4,825</div>
+                <div class="summary-value">
+                    {{ number_format($totalTransaksi ?? 0, 0, ',', '.') }}
+                </div>
             </div>
         </div>
     </div>
@@ -436,7 +482,9 @@
                 <div class="d-flex justify-content-between align-items-start flex-wrap">
                     <div>
                         <h3 class="panel-title">Tren Penjualan Bulanan</h3>
-                        <div class="panel-subtitle">Pertumbuhan tiket terjual dan transaksi sepanjang tahun 2026</div>
+                        <div class="panel-subtitle">
+                            Pertumbuhan tiket terjual dan transaksi sepanjang tahun {{ $tahun ?? date('Y') }}
+                        </div>
                     </div>
                 </div>
 
@@ -449,39 +497,51 @@
         <div class="col-lg-4">
             <div class="panel-card">
                 <h3 class="panel-title">Status Transaksi</h3>
-                <div class="panel-subtitle">Ringkasan pembayaran tiket saat ini</div>
+                <div class="panel-subtitle">
+                    Paid: {{ $paidCount ?? 0 }} •
+                    Pending: {{ $pendingCount ?? 0 }} •
+                    Failed: {{ $failedCount ?? 0 }}
+                </div>
 
                 <div class="demo-item">
                     <div class="demo-head">
                         <span class="status-paid-text">Paid</span>
-                        <span>80%</span>
+                        <span>{{ $paidPercent ?? 0 }}%</span>
                     </div>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-green" style="width: 80%"></div>
+                        <div class="progress-bar progress-bar-green"
+                             style="width: {{ $paidPercent ?? 0 }}%">
+                        </div>
                     </div>
                 </div>
 
                 <div class="demo-item">
                     <div class="demo-head">
                         <span class="status-pending-text">Pending</span>
-                        <span>15%</span>
+                        <span>{{ $pendingPercent ?? 0 }}%</span>
                     </div>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-light" style="width: 15%"></div>
+                        <div class="progress-bar progress-bar-light"
+                             style="width: {{ $pendingPercent ?? 0 }}%">
+                        </div>
                     </div>
                 </div>
 
                 <div class="demo-item">
                     <div class="demo-head">
                         <span class="status-failed-text">Failed</span>
-                        <span>5%</span>
+                        <span>{{ $failedPercent ?? 0 }}%</span>
                     </div>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-gold" style="width: 5%"></div>
+                        <div class="progress-bar progress-bar-gold"
+                             style="width: {{ $failedPercent ?? 0 }}%">
+                        </div>
                     </div>
                 </div>
 
-                <a href="{{ url('/admin/transaksi') }}" class="detail-link">Lihat Detail Transaksi ›</a>
+                <a href="{{ url('/admin/transaksi') }}" class="detail-link">
+                    Lihat Detail Transaksi ›
+                </a>
             </div>
         </div>
     </div>
@@ -489,12 +549,19 @@
     <div class="row g-3">
         <div class="col-lg-4">
             <div class="destination-card">
-               <img src="{{ asset('/assets/images/papuma.jpg') }}"
-                alt="Pantai Papuma"
-                class="destination-image">
+                <img src="{{ $popularImage }}"
+                     alt="{{ $popularDestination->name ?? 'Destinasi Populer' }}"
+                     class="destination-image"
+                     onerror="this.onerror=null;this.src='{{ $defaultImage }}';">
+
                 <div class="destination-overlay">
-                    <div class="destination-name">Pantai Papuma</div>
-                    <div class="destination-sub">Destinasi paling populer hari ini</div>
+                    <div class="destination-name">
+                        {{ $popularDestination->name ?? 'Belum ada data wisata' }}
+                    </div>
+                    <div class="destination-sub">
+                        {{ number_format($popularDestination->total_tiket ?? 0, 0, ',', '.') }}
+                        tiket terjual
+                    </div>
                 </div>
             </div>
         </div>
@@ -518,42 +585,61 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#TRX-9921</td>
-                                <td>
-                                    <span class="user-badge">
-                                        <span class="user-avatar-mini">RA</span>
-                                        Rizky Amelia
-                                    </span>
-                                </td>
-                                <td>Pantai Papuma</td>
-                                <td class="status-success">Berhasil</td>
-                                <td class="nominal-text">Rp 450.000</td>
-                            </tr>
-                            <tr>
-                                <td>#TRX-9922</td>
-                                <td>
-                                    <span class="user-badge">
-                                        <span class="user-avatar-mini" style="background:#dff3e8;color:#1f7a5c;">SA</span>
-                                        Siti Aminah
-                                    </span>
-                                </td>
-                                <td>Rembangan</td>
-                                <td class="status-success">Berhasil</td>
-                                <td class="nominal-text">Rp 125.000</td>
-                            </tr>
-                            <tr>
-                                <td>#TRX-9923</td>
-                                <td>
-                                    <span class="user-badge">
-                                        <span class="user-avatar-mini" style="background:#f4ddb0;color:#8a6418;">BK</span>
-                                        Budi Kusuma
-                                    </span>
-                                </td>
-                                <td>Air Terjun Tancak</td>
-                                <td class="status-danger">Gagal</td>
-                                <td class="nominal-text">Rp 75.000</td>
-                            </tr>
+                            @forelse ($latestTransactions ?? [] as $trx)
+                                @php
+                                    $status = strtolower($trx->status_pembayaran ?? 'pending');
+
+                                    $statusClass = match ($status) {
+                                        'paid', 'settlement', 'capture', 'success' => 'status-success',
+                                        'failed', 'expire', 'cancel', 'deny' => 'status-danger',
+                                        default => 'status-warning',
+                                    };
+
+                                    $statusLabel = match ($status) {
+                                        'paid', 'settlement', 'capture', 'success' => 'Berhasil',
+                                        'failed', 'expire', 'cancel', 'deny' => 'Gagal',
+                                        default => 'Pending',
+                                    };
+
+                                    $namaUser = $trx->nama_user ?? 'User';
+                                    $words = collect(explode(' ', $namaUser))
+                                        ->filter()
+                                        ->values();
+
+                                    $initial = $words->take(2)->map(function ($word) {
+                                        return strtoupper(substr($word, 0, 1));
+                                    })->implode('');
+
+                                    if (!$initial) {
+                                        $initial = 'U';
+                                    }
+
+                                    $nominal = $trx->grand_total ?? $trx->total_harga ?? 0;
+                                @endphp
+
+                                <tr>
+                                    <td>
+                                        {{ $trx->kode_pesanan ?? $trx->kode_booking ?? $trx->id_transaksi }}
+                                    </td>
+                                    <td>
+                                        <span class="user-badge">
+                                            <span class="user-avatar-mini">{{ $initial }}</span>
+                                            {{ $namaUser }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $trx->nama_wisata ?? '-' }}</td>
+                                    <td class="{{ $statusClass }}">{{ $statusLabel }}</td>
+                                    <td class="nominal-text">
+                                        Rp {{ number_format($nominal, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="empty-text">
+                                        Belum ada transaksi
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -566,6 +652,11 @@
 @endsection
 
 @section('scripts')
+@php
+    $chartMonthlyTickets = $monthlyTickets ?? array_fill(0, 12, 0);
+    $chartMonthlyTransactions = $monthlyTransactions ?? array_fill(0, 12, 0);
+@endphp
+
 <script>
     const chartElement = document.getElementById('monthlySalesChart');
 
@@ -579,7 +670,7 @@
                 datasets: [
                     {
                         label: 'Tiket Terjual',
-                        data: [420, 580, 510, 690, 760, 880, 840, 930, 1010, 1120, 1190, 1280],
+                        data: @json($chartMonthlyTickets),
                         borderColor: '#155c43',
                         backgroundColor: 'rgba(21, 92, 67, 0.10)',
                         fill: true,
@@ -592,7 +683,7 @@
                     },
                     {
                         label: 'Total Transaksi',
-                        data: [180, 240, 220, 300, 350, 420, 390, 460, 520, 610, 670, 740],
+                        data: @json($chartMonthlyTransactions),
                         borderColor: '#b28b45',
                         backgroundColor: 'rgba(178, 139, 69, 0.04)',
                         fill: false,

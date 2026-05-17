@@ -21,6 +21,62 @@ class WisataController extends Controller
         return 'WST' . str_pad($num, 3, '0', STR_PAD_LEFT);
     }
 
+    public function edit($id)
+{
+    $wisata = \App\Models\Wisata::where('id_wisata', $id)->firstOrFail();
+
+    return view('admin.wisata.edit', compact('wisata'));
+}
+
+public function update(Request $request, $id)
+{
+    $wisata = \App\Models\Wisata::where('id_wisata', $id)->firstOrFail();
+
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'required|string',
+        'price' => 'required|numeric|min:0',
+        'kuota_harian' => 'required|integer|min:0',
+        'location_name' => 'required|string|max:255',
+        'latitude' => 'nullable|numeric',
+        'longitude' => 'nullable|numeric',
+        'biaya_parkir' => 'nullable|numeric|min:0',
+        'pajak_persen' => 'nullable|numeric|min:0',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+    ]);
+
+    $data = [
+        'name' => $request->name,
+        'description' => $request->description,
+        'price' => $request->price,
+        'kuota_harian' => $request->kuota_harian,
+        'location_name' => $request->location_name,
+        'latitude' => $request->latitude,
+        'longitude' => $request->longitude,
+        'biaya_parkir' => $request->biaya_parkir ?? 0,
+        'pajak_persen' => $request->pajak_persen ?? 0,
+        'include_parkir' => $request->has('include_parkir') ? 1 : 0,
+        'include_pajak' => $request->has('include_pajak') ? 1 : 0,
+    ];
+
+    if ($request->hasFile('image')) {
+        if ($wisata->image && file_exists(public_path('uploads/wisata/' . $wisata->image))) {
+            unlink(public_path('uploads/wisata/' . $wisata->image));
+        }
+
+        $image = $request->file('image');
+        $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+        $image->move(public_path('uploads/wisata'), $imageName);
+
+        $data['image'] = $imageName;
+    }
+
+    $wisata->update($data);
+
+    return redirect()
+        ->route('admin.wisata.index')
+        ->with('success', 'Data wisata berhasil diperbarui');
+}
     private function generateGaleriId()
     {
         $last = GaleriWisata::orderBy('id', 'desc')->first();

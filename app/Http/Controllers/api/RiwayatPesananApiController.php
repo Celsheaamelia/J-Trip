@@ -22,7 +22,7 @@ class RiwayatPesananApiController extends Controller
                     'kode_booking' => $tiket->kode_booking,
                     'tanggal_kunjungan' => $tiket->tanggal_kunjungan,
                     'jumlah_pengunjung' => $tiket->jumlah_pengunjung,
-                    'grand_total' => $tiket->grand_total,
+                    'grand_total' => (int) $tiket->grand_total,
                     'status' => $tiket->status,
 
                     'wisata' => [
@@ -34,10 +34,13 @@ class RiwayatPesananApiController extends Controller
                     ],
 
                     'transaksi' => [
-                        'status_pembayaran' => $tiket->transaksi->status_pembayaran ?? null,
-                        'metode_pembayaran' => $tiket->transaksi->metode_pembayaran ?? null,
-                        'paid_at' => $tiket->transaksi->paid_at ?? null,
-                    ],
+                    'id_transaksi' => $tiket->transaksi->id_transaksi ?? null,
+                    'kode_pesanan' => $tiket->transaksi->kode_pesanan ?? null,
+                    'snap_token' => $tiket->transaksi->snap_token ?? null,
+                    'status_pembayaran' => $tiket->transaksi->status_pembayaran ?? null,
+                    'metode_pembayaran' => $tiket->transaksi->metode_pembayaran ?? null,
+                    'paid_at' => $tiket->transaksi->paid_at ?? null,
+                ],
 
                     'detail_tiket' => $tiket->detailTiket->map(function ($detail) {
                         return [

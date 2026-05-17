@@ -13,6 +13,7 @@ use App\Http\Controllers\UmkmController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\RiwayatPesananController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/admin/umkm', [UmkmController::class, 'index'])
     ->name('admin.umkm.index');
@@ -72,19 +73,33 @@ Route::get('/admin/tiket', [TiketController::class, 'index'])
 Route::get('/admin/laporan', [LaporanController::class, 'index'])
     ->name('admin.laporan.index');
 
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard.index');
-});
+Route::get('/admin/laporan/export/excel', [LaporanController::class, 'exportExcel'])
+    ->name('admin.laporan.export.excel');
+
+Route::get('/admin/laporan/export/pdf', [LaporanController::class, 'exportPdf'])
+    ->name('admin.laporan.export.pdf');
+
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])
+    ->name('admin.dashboard');
 
 Route::get('/admin/user/{id}/edit', [UserController::class, 'edit']);
 Route::put('/admin/user/{id}/update', [UserController::class, 'update']);
 Route::delete('/admin/user/{id}/delete', [UserController::class, 'destroy']);
 
-Route::get('/admin/wisata', [WisataController::class, 'index']);
-Route::post('/admin/wisata/store', [WisataController::class, 'store']);
-Route::get('/admin/wisata/{id}/edit', [WisataController::class, 'edit']);
-Route::put('/admin/wisata/{id}/update', [WisataController::class, 'update']);
-Route::delete('/admin/wisata/{id}/delete', [WisataController::class, 'destroy']);
+Route::get('/admin/wisata', [WisataController::class, 'index'])
+    ->name('admin.wisata.index');
+
+Route::post('/admin/wisata/store', [WisataController::class, 'store'])
+    ->name('admin.wisata.store');
+
+Route::get('/admin/wisata/{id}/edit', [WisataController::class, 'edit'])
+    ->name('admin.wisata.edit');
+
+Route::put('/admin/wisata/{id}', [WisataController::class, 'update'])
+    ->name('admin.wisata.update');
+
+Route::delete('/admin/wisata/{id}/delete', [WisataController::class, 'destroy'])
+    ->name('admin.wisata.destroy');
 
 
 Route::post('/midtrans/snap-token/{id}', [MidtransController::class, 'createSnapToken'])
@@ -101,4 +116,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/riwayat-pesanan/{id}', [RiwayatPesananController::class, 'show'])
         ->name('riwayat.pesanan.show');
-});
+
+    Route::get('/verify-otp', [AuthController::class, 'showVerifyOtp'])
+    ->name('verify.otp');
+
+    Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])
+        ->name('verify.otp.submit');
+
+    Route::post('/resend-otp', [AuthController::class, 'resendOtp'])
+        ->name('verify.otp.resend');
+    });
