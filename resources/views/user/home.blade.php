@@ -62,11 +62,8 @@
                     di J-Trip. Dapatkan pengalaman wisata tumbukan!
                 </p>
                 <div class="hero-buttons">
-                    <a href="#" class="btn-primary">
+                    <a href="{{ url('/wisata') }}" class="btn-primary">
                         <i class="fas fa-ticket-alt"></i> Pesan tiket
-                    </a>
-                    <a href="#destinasi" class="btn-outline">
-                        <i class="fas fa-map-marker-alt"></i> Lihat Destinasi
                     </a>
                 </div>
             </div>
